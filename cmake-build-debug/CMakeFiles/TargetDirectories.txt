@@ -1,0 +1,3 @@
+/Users/alexzheng/Documents/cpp design/AutoSensorManager/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/Users/alexzheng/Documents/cpp design/AutoSensorManager/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/alexzheng/Documents/cpp design/AutoSensorManager/cmake-build-debug/CMakeFiles/AutoSensorManager.dir
