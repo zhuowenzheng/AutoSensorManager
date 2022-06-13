@@ -7,6 +7,7 @@
 using namespace std;
 
 /******************************************************************************
+ * @Requirements:
  * 创建一个完整的C++应用程序，用于对智能车所安装的传感器参数进行管理。
  * 用循环语句构建程序主菜单框架，通过输入菜单项标识符（命令编号或菜单文本中的首字符）执行菜单项所关联的功能。
  * 设计并实现传感器模板类Sensor 、传感器参数基类SensorParameter 、
@@ -38,9 +39,6 @@ public:
         this->color_bits = color_bits;
     }
 
-
-
-    //[]操作符重载用于访问数组元素
     int resolution_x;
     int resolution_y;
     int frame_rate;
@@ -103,9 +101,14 @@ public:
     Sensor(const CameraParameter& currentParameter) : current_parameter(currentParameter) {
         if(parameters.empty())
         {
-            Sensor<CameraParameter>::parameters.reserve(10);
+            Sensor<CameraParameter>::parameters.reserve(reserved_sensor_num);
         }
         this->current_parameter = currentParameter;
+        if(parameters.size()>=reserved_sensor_num)
+        {
+            reserved_sensor_num*=2;
+            parameters.reserve(reserved_sensor_num);
+        }
         Sensor<CameraParameter>::parameters.push_back(currentParameter);
     }
     ~Sensor()
@@ -119,7 +122,7 @@ public:
     // 显示当前传感器参数
     void show_parameter()
     {
-        cout << "编号\t名称\t位置\t旋转角度\t分辨率\t帧率\t视场角\t颜色位数" << endl;
+        cout << "\033[0;34m 编号\t名称\t位置\t旋转角度\t分辨率\t帧率\t视场角\t颜色位数 \033[0m" << endl;
         for (int i = 0; i < this->parameters.size(); i++)
         {
             cout << parameters[i].id << "\t" << parameters[i].name << "\t" << parameters[i].x << "\t" << parameters[i].y << "\t" << parameters[i].z << "\t" << parameters[i].roll << "\t" << parameters[i].pitch << "\t" << parameters[i].yaw << "\t" << parameters[i].resolution_x << "\t" << parameters[i].resolution_y << "\t" << parameters[i].frame_rate << "\t" << parameters[i].view_angle << "\t" << parameters[i].color_bits << endl;
@@ -158,7 +161,7 @@ public:
         return this->parameters;
     }
     void list_sensors(){
-        cout<<"Camera编号\tCamera名称\tCamera位置"<<endl;
+        cout<<"\033[0;34m Camera编号\tCamera名称\tCamera位置 \033[0m"<<endl;
         for (int i = 0; i < this->parameters.size(); i++)
         {
             cout << this->parameters[i].id << "\t" << this->parameters[i].name<<"\t"<<parameters[i].x<<" "<<parameters[i].y<<" "<<parameters[i].z<< endl;
@@ -167,7 +170,8 @@ public:
 private:
     vector<CameraParameter> parameters;
     CameraParameter current_parameter;
-    int sensor_parameter_flag{};
+    int sensor_parameter_flag;
+    int reserved_sensor_num = 10;
 
 };
 
@@ -180,9 +184,14 @@ public:
     Sensor(const LidarParameter& currentParameter) : current_parameter(currentParameter) {
         if(parameters.empty())
         {
-            Sensor<LidarParameter>::parameters.reserve(10);
+            Sensor<LidarParameter>::parameters.reserve(reserved_sensor_num);
         }
         this->current_parameter = currentParameter;
+        if(parameters.size()>=reserved_sensor_num)
+        {
+            reserved_sensor_num*=2;
+            parameters.reserve(reserved_sensor_num);
+        }
         Sensor<LidarParameter>::parameters.push_back(currentParameter);
     }
 
@@ -197,7 +206,7 @@ public:
     }
     void show_parameter()
     {
-        cout << "编号\t名称\t位置\t旋转角度\t线数\t视场角\t旋转频率\t水平视场角" << endl;
+        cout << "\033[0;34m 编号\t名称\t位置\t旋转角度\t线数\t视场角\t旋转频率\t水平视场角 \033[0m" << endl;
         for (int i = 0; i < this->parameters.size(); i++)
         {
             cout << this->parameters[i].id << "\t" << this->parameters[i].name << "\t" << this->parameters[i].x << "\t" << this->parameters[i].y << "\t" << this->parameters[i].z << "\t" << this->parameters[i].roll << "\t" << this->parameters[i].pitch << "\t" << this->parameters[i].yaw << "\t" << this->parameters[i].view_angle << "\t" << this->parameters[i].horizontal_view_angle << endl;
@@ -230,7 +239,7 @@ public:
         return this->parameters;
     }
     void list_sensors(){
-        cout<<"Lidar编号\tLidar名称\tLidar位置"<<endl;
+        cout<<"\033[0;34m Lidar编号\tLidar名称\tLidar位置 \033[0m"<<endl;
         for (int i = 0; i < this->parameters.size(); i++)
         {
             cout << this->parameters[i].id << "\t" << this->parameters[i].name<<"\t"<<parameters[i].x<<" "<<parameters[i].y<<" "<<parameters[i].z<< endl;
@@ -239,7 +248,8 @@ public:
 private:
     vector<LidarParameter> parameters;
     LidarParameter current_parameter;
-    int sensor_parameter_flag{};
+    int sensor_parameter_flag;
+    int reserved_sensor_num = 10;
 };
 
 // Radar
@@ -250,9 +260,14 @@ public:
     Sensor(const RadarParameter& currentParameter) : current_parameter(currentParameter) {
         if(parameters.empty())
         {
-            Sensor<RadarParameter>::parameters.reserve(10);
+            Sensor<RadarParameter>::parameters.reserve(reserved_sensor_num);
         }
         this->current_parameter = currentParameter;
+        if(parameters.size()>=reserved_sensor_num)
+        {
+            reserved_sensor_num*=2;
+            parameters.reserve(reserved_sensor_num);
+        }
         Sensor<RadarParameter>::parameters.push_back(currentParameter);
     }
     ~Sensor()
@@ -266,7 +281,8 @@ public:
     }
     void show_parameter()
     {
-        cout << "编号\t名称\t位置\t旋转角度\t分辨率\t视场角\t速度精度\t探测模式" << endl;
+
+        cout << "\033[0;34m 编号\t名称\t位置\t旋转角度\t分辨率\t视场角\t速度精度\t探测模式 \033[0m" << endl;
         for (int i = 0; i < parameters.size(); i++)
         {
             cout << this->parameters[i].id << "\t" << this->parameters[i].name << "\t" << this->parameters[i].x << " " << this->parameters[i].y << " " << this->parameters[i].z << "\t" << this->parameters[i].roll << " " << this->parameters[i].pitch << " " << this->parameters[i].yaw << "\t" << this->parameters[i].resolution[0] << " " << this->parameters[i].resolution[1] << "\t" << this->parameters[i].view_angle << "\t" << this->parameters[i].speed_accuracy[0] << " " << this->parameters[i].speed_accuracy[1] << "\t" << this->parameters[i].detect_mode << endl;
@@ -300,7 +316,7 @@ public:
         return this->parameters;
     }
     void list_sensors(){
-        cout<<"Radar编号\tRadar名称\tRadar位置"<<endl;
+        cout<<"\033[0;34m Radar编号\tRadar名称\tRadar位置 \033[0m"<<endl;
         for (int i = 0; i < this->parameters.size(); i++)
         {
             cout << this->parameters[i].id << "\t" << this->parameters[i].name<<"\t"<<parameters[i].x<<" "<<parameters[i].y<<" "<<parameters[i].z<< endl;
@@ -310,6 +326,7 @@ private:
     vector<RadarParameter> parameters;
     RadarParameter current_parameter;
     int sensor_parameter_flag;
+    int reserved_sensor_num = 10;
 };
 
 // 传感器管理类 SensorManager
@@ -449,7 +466,7 @@ public:
 
     }
     // 列表
-    void list_sensor()
+    void list_all_sensor()
     {
         cout<<"-----------------传感器列表-----------------"<<endl;
         cout<<"现共有"<<sensor_num<<"个传感器："<<endl;
@@ -459,7 +476,11 @@ public:
         camera_list.list_sensors();
         lidar_list.list_sensors();
         radar_list.list_sensors();
-        cout<<"------------------------------------------------"<<endl;
+        cout<<"-------------------------------------------"<<endl;
+
+    }
+    // 在线
+    void list_online_sensor(){
 
     }
     // 统计
@@ -490,6 +511,7 @@ public:
         }
         case 3:
         {
+
             cout<<"---------------------------------Radar---------------------------------"<<endl;
             radar_list.show_parameter();
             cout<<"----------------------------------END-----------------------------------"<<endl<<endl;
@@ -537,17 +559,17 @@ int main() {
 
     SensorManager sensor_manager("Default Car");
     while (1) {
-        int flag = 0;
+        int choice = 0;
         cout << "请输入您的选择：";
-        cin >> flag;
-        switch (flag) {
+        cin >> choice;
+        switch (choice) {
             case 1:{
                 sensor_manager.add_sensor();
                 break;
             }
             case 2:
             {
-                sensor_manager.list_sensor();
+                sensor_manager.list_all_sensor();
                 break;
             }
             case 3:
@@ -563,9 +585,16 @@ int main() {
             case 7:
                 break;
             case 8: {
+                cout << "\033[0;33m Developer:alexzheng@tongji.edu.cn; AlexZ 2022. All rights reserved. \033[0m" << endl;
+                cout << "\033[0;33m [INFO] 感谢使用智能汽车传感器管理系统，您已退出！\033[0m" << endl;
                 exit(0);
             }
         }
     }
     return 0;
 }
+
+// 未完成之任务：
+// 1.限定参数范围 exception
+// 2.容量限制翻倍
+// 3.添加接口
