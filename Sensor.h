@@ -5,7 +5,7 @@
 #ifndef AUTOSENSORMANAGER_SENSOR_H
 #define AUTOSENSORMANAGER_SENSOR_H
 
-#include<vector>
+
 using namespace std;
 
 // 传感器模板类Sensor<T>
@@ -20,19 +20,18 @@ class Sensor
 {
 public:
     Sensor() {
-        // 初始化传感器参数vector
-        sensor_parameter.reserve(10);
+        sensor_parameter = new T[sensor_parameter_size];
         // 初始化传感器参数数组大小
         sensor_parameter_size = 10;
     }
     ~Sensor() {
         // 删除传感器参数数组指针
-        sensor_parameter.clear();
+        delete [] sensor_parameter;
     }
     // 设置传感器参数数组大小
     void setSensorParameterSize(int _sensor_parameter_size) {
         this->sensor_parameter_size = sensor_parameter_size;
-        sensor_parameter.reserve(sensor_parameter_size);
+        sensor_parameter = new T[sensor_parameter_size];
     }
     // 获取传感器参数数组大小
     int getSensorParameterSize() {
@@ -40,7 +39,7 @@ public:
     }
     // 获取传感器参数数组实际大小
     int getSensorParameterActualSize() {
-        return sensor_parameter.size();
+        return sensor_parameter_actual_size;
     }
     // 设置传感器参数数组标志
     void setSensorParameterFlag(int _sensor_parameter_flag) {
@@ -54,7 +53,8 @@ public:
     // 数据成员
 
 private:
-    vector<T> sensor_parameter;
+    T* sensor_parameter;
+    int sensor_parameter_actual_size;
     int sensor_parameter_size;
     int sensor_parameter_flag;
 };

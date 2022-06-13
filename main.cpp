@@ -93,47 +93,72 @@ public:
 // 对数据的操作应主要包括：添加、显示以及当前标志等数据成员的设置及获取等。
 // 其中，添加是将键盘输入的参数构造成对应的传感器参数类对象中；显示是将当前的传感器参数按格式输出到屏幕上。
 // 根据需要定义相应的构造函数及其他成员函数；
+static int num_camera = 0;
+
 template <>
 class Sensor<CameraParameter>
 {
 public:
     Sensor(){}
-    Sensor(const CameraParameter& currentParameter) : current_parameter(currentParameter) {
-        if(parameters.empty())
-        {
-            Sensor<CameraParameter>::parameters.reserve(reserved_sensor_num);
-        }
-        this->current_parameter = currentParameter;
-        if(parameters.size()>=reserved_sensor_num)
-        {
-            reserved_sensor_num*=2;
-            parameters.reserve(reserved_sensor_num);
-        }
-        Sensor<CameraParameter>::parameters.push_back(currentParameter);
+    // 拷贝构造函数
+    Sensor(CameraParameter camera_parameter)
+    {
+        this->camera_parameter = &camera_parameter;
     }
     ~Sensor()
     {
-        parameters.clear();
+        //parameters.clear();
+        delete camera_parameter;
     }
     void add_parameter(CameraParameter cameraParameter)
     {
-        this->parameters.push_back(cameraParameter);
+        //this->parameters.push_back(cameraParameter);
+        if(this->camera_parameter == nullptr)
+        {
+            this->camera_parameter = new CameraParameter[reserved_sensor_num];
+        }
+        this->current_parameter = cameraParameter;
+        if(num_camera>=reserved_sensor_num)
+        {
+            reserved_sensor_num*=2;
+            //parameters.reserve(reserved_sensor_num);
+            CameraParameter *temp = new CameraParameter[reserved_sensor_num];
+            for(int i=0;i<num_camera;i++)
+            {
+                temp[i] = camera_parameter[i];
+            }
+            camera_parameter = temp;
+            //camera_parameter = (CameraParameter*)realloc(camera_parameter, reserved_sensor_num);
+        }
+        *(camera_parameter+num_camera++) = cameraParameter;
     }
     // 显示当前传感器参数
     void show_parameter()
     {
         cout << "\033[0;34m 编号\t名称\t位置\t旋转角度\t分辨率\t帧率\t视场角\t颜色位数 \033[0m" << endl;
-        for (int i = 0; i < this->parameters.size(); i++)
+        for (int i = 0; i < num_camera; i++)
         {
-            cout << parameters[i].id << "\t" << parameters[i].name << "\t" << parameters[i].x << "\t" << parameters[i].y << "\t" << parameters[i].z << "\t" << parameters[i].roll << "\t" << parameters[i].pitch << "\t" << parameters[i].yaw << "\t" << parameters[i].resolution_x << "\t" << parameters[i].resolution_y << "\t" << parameters[i].frame_rate << "\t" << parameters[i].view_angle << "\t" << parameters[i].color_bits << endl;
+            cout << camera_parameter[i].id<<"\t"<<camera_parameter[i].name << "\t" << camera_parameter[i].x << "," << camera_parameter[i].y << "," << camera_parameter[i].z << "\t" << camera_parameter[i].roll << "," << camera_parameter[i].pitch << "," << camera_parameter[i].yaw << "\t" << camera_parameter[i].resolution_x << "," << camera_parameter[i].resolution_y << "\t" << camera_parameter[i].frame_rate << "\t" << camera_parameter[i].view_angle << "\t" << camera_parameter[i].color_bits << endl;
+            //cout << parameters[i].id << "\t" << parameters[i].name << "\t" << parameters[i].x << "\t" << parameters[i].y << "\t" << parameters[i].z << "\t" << parameters[i].roll << "\t" << parameters[i].pitch << "\t" << parameters[i].yaw << "\t" << parameters[i].resolution_x << "\t" << parameters[i].resolution_y << "\t" << parameters[i].frame_rate << "\t" << parameters[i].view_angle << "\t" << parameters[i].color_bits << endl;
         }
     }
     // 设置当前传感器参数
-    void set_current_parameter(int id)
+    void set_current_parameter(int id, string name, double x, double y, double z, double roll, double pitch, double yaw, int resolution_x, int resolution_y, int frame_rate, int view_angle, int color_bits)
     {
         this->current_parameter.id = id;
+        this->current_parameter.name = name;
+        this->current_parameter.x = x;
+        this->current_parameter.y = y;
+        this->current_parameter.z = z;
+        this->current_parameter.roll = roll;
+        this->current_parameter.pitch = pitch;
+        this->current_parameter.yaw = yaw;
+        this->current_parameter.resolution_x = resolution_x;
+        this->current_parameter.resolution_y = resolution_y;
+        this->current_parameter.frame_rate = frame_rate;
+        this->current_parameter.view_angle = view_angle;
+        this->current_parameter.color_bits = color_bits;
     }
-
     // 获取当前传感器的标志
     int get_sensor_parameter_flag() const
     {
@@ -145,153 +170,199 @@ public:
     }
     CameraParameter get_parameter(int id)
     {
-        vector<CameraParameter>::iterator it;
-        for (it = this->parameters.begin(); it != this->parameters.end(); it++)
+        for(int i=0;i<num_camera;i++)
         {
-            if (it->id == id)
+            if(camera_parameter[i].id == id)
             {
-                return *it;
+                return camera_parameter[i];
             }
         }
+
     }
     int get_sensor_num(){
-        return this->parameters.size();
+        return num_camera;
     }
-    vector<CameraParameter> get_parameters(){
+    //vector实现的备份
+   /* vector<CameraParameter> get_parameters(){
         return this->parameters;
-    }
+    }*/
+
     void list_sensors(){
         cout<<"\033[0;34m Camera编号\tCamera名称\tCamera位置 \033[0m"<<endl;
-        for (int i = 0; i < this->parameters.size(); i++)
+        for (int i = 0; i < num_camera; i++)
         {
-            cout << this->parameters[i].id << "\t" << this->parameters[i].name<<"\t"<<parameters[i].x<<" "<<parameters[i].y<<" "<<parameters[i].z<< endl;
+            cout << camera_parameter[i].id<<"\t"<<camera_parameter[i].name << "\t" << camera_parameter[i].x << "," << camera_parameter[i].y << "," << camera_parameter[i].z << endl;
+            //cout << this->parameters[i].id << "\t" << this->parameters[i].name<<"\t"<<parameters[i].x<<" "<<parameters[i].y<<" "<<parameters[i].z<< endl;
         }
     }
+
+
 private:
-    vector<CameraParameter> parameters;
+    //vector<CameraParameter> parameters;
+    CameraParameter *camera_parameter = nullptr;
     CameraParameter current_parameter;
     int sensor_parameter_flag;
     int reserved_sensor_num = 10;
 
 };
 
-
+static int num_lidar = 0;
 //特化传感器类 Sensor<LidarParameter>
 template <> class Sensor<LidarParameter>
 {
 public:
     Sensor(){}
-    Sensor(const LidarParameter& currentParameter) : current_parameter(currentParameter) {
-        if(parameters.empty())
-        {
-            Sensor<LidarParameter>::parameters.reserve(reserved_sensor_num);
-        }
-        this->current_parameter = currentParameter;
-        if(parameters.size()>=reserved_sensor_num)
-        {
-            reserved_sensor_num*=2;
-            parameters.reserve(reserved_sensor_num);
-        }
-        Sensor<LidarParameter>::parameters.push_back(currentParameter);
+    // 拷贝构造函数
+    Sensor(LidarParameter lidarParameter)
+    {
+        this->lidar_parameter = &lidarParameter;
     }
-
     ~Sensor()
     {
-        parameters.clear();
+        delete [] lidar_parameter;
     }
     void add_parameter(LidarParameter lidarParameter)
     {
         // 导入
-        this->parameters.push_back(lidarParameter);
+        if(this->lidar_parameter == nullptr)
+        {
+            this->lidar_parameter = new LidarParameter[reserved_sensor_num];
+        }
+        this->current_parameter = lidarParameter;
+        if(num_lidar>=reserved_sensor_num)
+        {
+            reserved_sensor_num*=2;
+            //parameters.reserve(reserved_sensor_num);
+            LidarParameter *temp = new LidarParameter[reserved_sensor_num];
+            for(int i=0;i<num_lidar;i++)
+            {
+                temp[i] = lidar_parameter[i];
+            }
+            lidar_parameter = temp;
+
+        }
+        *(lidar_parameter+num_lidar++) = lidarParameter;
     }
     void show_parameter()
     {
         cout << "\033[0;34m 编号\t名称\t位置\t旋转角度\t线数\t视场角\t旋转频率\t水平视场角 \033[0m" << endl;
-        for (int i = 0; i < this->parameters.size(); i++)
+        for (int i = 0; i < num_lidar; i++)
         {
-            cout << this->parameters[i].id << "\t" << this->parameters[i].name << "\t" << this->parameters[i].x << "\t" << this->parameters[i].y << "\t" << this->parameters[i].z << "\t" << this->parameters[i].roll << "\t" << this->parameters[i].pitch << "\t" << this->parameters[i].yaw << "\t" << this->parameters[i].view_angle << "\t" << this->parameters[i].horizontal_view_angle << endl;
+            cout << this->lidar_parameter[i].id << "\t" << this->lidar_parameter[i].name << "\t" << this->lidar_parameter[i].x << "\t" << this->lidar_parameter[i].y << "\t" << this->lidar_parameter[i].z << "\t" << this->lidar_parameter[i].roll << "\t" << this->lidar_parameter[i].pitch << "\t" << this->lidar_parameter[i].yaw << "\t" << this->lidar_parameter[i].view_angle << "\t" << this->lidar_parameter[i].horizontal_view_angle << endl;
         }
     }
-    void set_current_parameter(int id)
+    void set_current_parameter(int id, string name, double x, double y, double z, double roll, double pitch, double yaw, int line_num, int view_angle,int rotate_rate,int horizontal_view_angle)
     {
-        this->current_parameter = this->parameters[id];
+        this->current_parameter.id = id;
+        this->current_parameter.name = name;
+        this->current_parameter.x = x;
+        this->current_parameter.y = y;
+        this->current_parameter.z = z;
+        this->current_parameter.roll = roll;
+        this->current_parameter.pitch = pitch;
+        this->current_parameter.yaw = yaw;
+        this->current_parameter.line_num = line_num;
+        this->current_parameter.view_angle = view_angle;
+        this->current_parameter.rotate_rate = rotate_rate;
+        this->current_parameter.horizontal_view_angle = horizontal_view_angle;
     }
+
     LidarParameter get_current_parameter()
     {
         return this->current_parameter;
     }
     LidarParameter get_parameter(int id)
     {
-        vector<LidarParameter>::iterator it;
-        for (it = this->parameters.begin(); it != this->parameters.end(); it++)
+        for(int i=0;i<num_lidar;i++)
         {
-            if (it->id == id)
+            if(lidar_parameter[i].id == id)
             {
-                return *it;
+                return lidar_parameter[i];
             }
         }
     }
     int get_sensor_num(){
-        return this->parameters.size();
+        return num_lidar;
     }
-    vector<LidarParameter> get_parameters()
+    /*vector<LidarParameter> get_parameters()
     {
         return this->parameters;
-    }
+    }*/
     void list_sensors(){
         cout<<"\033[0;34m Lidar编号\tLidar名称\tLidar位置 \033[0m"<<endl;
-        for (int i = 0; i < this->parameters.size(); i++)
-        {
-            cout << this->parameters[i].id << "\t" << this->parameters[i].name<<"\t"<<parameters[i].x<<" "<<parameters[i].y<<" "<<parameters[i].z<< endl;
+        for (int i = 0; i < num_lidar;i++){
+            cout << lidar_parameter[i].id<<"\t"<<lidar_parameter[i].name << "\t" << lidar_parameter[i].x << "," << lidar_parameter[i].y << "," << lidar_parameter[i].z << endl;
         }
     }
 private:
-    vector<LidarParameter> parameters;
+    //vector<LidarParameter> parameters;
+    LidarParameter* lidar_parameter = nullptr;
     LidarParameter current_parameter;
     int sensor_parameter_flag;
     int reserved_sensor_num = 10;
 };
 
 // Radar
+static int num_radar = 0;
 template <> class Sensor<RadarParameter>
 {
 public:
     Sensor(){}
-    Sensor(const RadarParameter& currentParameter) : current_parameter(currentParameter) {
-        if(parameters.empty())
-        {
-            Sensor<RadarParameter>::parameters.reserve(reserved_sensor_num);
-        }
-        this->current_parameter = currentParameter;
-        if(parameters.size()>=reserved_sensor_num)
-        {
-            reserved_sensor_num*=2;
-            parameters.reserve(reserved_sensor_num);
-        }
-        Sensor<RadarParameter>::parameters.push_back(currentParameter);
+    Sensor(RadarParameter radarParameter)
+    {
+        this->radar_parameter = &radarParameter;
     }
     ~Sensor()
     {
-        parameters.clear();
+        delete [] radar_parameter;
     }
     void add_parameter(RadarParameter radarParameter)
     {
-        // 导入数组
-        this->parameters.push_back(radarParameter);
+        if(this->radar_parameter == nullptr)
+        {
+            this->radar_parameter = new RadarParameter[reserved_sensor_num];
+        }
+        this->current_parameter = radarParameter;
+        if(num_radar>=reserved_sensor_num)
+        {
+            reserved_sensor_num*=2;
+            RadarParameter *temp = new RadarParameter[reserved_sensor_num];
+            for(int i=0;i<num_radar;i++)
+            {
+                temp[i] = radar_parameter[i];
+            }
+            radar_parameter = temp;
+
+        }
+        *(radar_parameter+num_radar++) = radarParameter;
     }
-    void show_parameter()
-    {
+    void show_parameter() {
 
         cout << "\033[0;34m 编号\t名称\t位置\t旋转角度\t分辨率\t视场角\t速度精度\t探测模式 \033[0m" << endl;
-        for (int i = 0; i < parameters.size(); i++)
-        {
-            cout << this->parameters[i].id << "\t" << this->parameters[i].name << "\t" << this->parameters[i].x << " " << this->parameters[i].y << " " << this->parameters[i].z << "\t" << this->parameters[i].roll << " " << this->parameters[i].pitch << " " << this->parameters[i].yaw << "\t" << this->parameters[i].resolution[0] << " " << this->parameters[i].resolution[1] << "\t" << this->parameters[i].view_angle << "\t" << this->parameters[i].speed_accuracy[0] << " " << this->parameters[i].speed_accuracy[1] << "\t" << this->parameters[i].detect_mode << endl;
+        for (int i = 0; i < num_radar; i++) {
+            cout << radar_parameter[i].id << "\t" << radar_parameter[i].name << "\t" << radar_parameter[i].x << "\t"
+                 << radar_parameter[i].y << "\t" << radar_parameter[i].z << "\t" << radar_parameter[i].roll << "\t"
+                 << radar_parameter[i].pitch << "\t" << radar_parameter[i].yaw << "\t" << radar_parameter[i].resolution[0]<<","<<radar_parameter[i].resolution[1]
+                 << "\t" << radar_parameter[i].view_angle << "\t" << radar_parameter[i].speed_accuracy[0]<<","<<radar_parameter[i].speed_accuracy[1] << "\t"
+                 << radar_parameter[i].detect_mode << endl;
         }
-
     }
-    void set_current_parameter(int id)
+    void set_current_parameter(int id, string name, double x, double y, double z, double roll, double pitch, double yaw, int resolution_x, int resolution_y, int view_angle, int speed_accuracy_x,int speed_accuracy_y, int detect_mode)
     {
-        this->current_parameter = this->parameters[id];
+        this->current_parameter.id = id;
+        this->current_parameter.name = name;
+        this->current_parameter.x = x;
+        this->current_parameter.y = y;
+        this->current_parameter.z = z;
+        this->current_parameter.roll = roll;
+        this->current_parameter.pitch = pitch;
+        this->current_parameter.yaw = yaw;
+        this->current_parameter.resolution[0] = resolution_x;
+        this->current_parameter.resolution[1] = resolution_y;
+        this->current_parameter.view_angle = view_angle;
+        this->current_parameter.speed_accuracy[0] = speed_accuracy_x;
+        this->current_parameter.speed_accuracy[1] = speed_accuracy_y;
+        this->current_parameter.detect_mode = detect_mode;
     }
     RadarParameter get_current_parameter()
     {
@@ -299,31 +370,24 @@ public:
     }
     RadarParameter get_parameter(int id)
     {
-        vector<RadarParameter>::iterator it;
-        for (it = this->parameters.begin(); it != this->parameters.end(); it++)
-        {
-            if (it->id == id)
-            {
-                return *it;
-            }
-        }
+
     }
     int get_sensor_num(){
-        return this->parameters.size();
+        return num_radar;
     }
-    vector<RadarParameter> get_parameters()
+   /* vector<RadarParameter> get_parameters()
     {
         return this->parameters;
-    }
+    }*/
     void list_sensors(){
         cout<<"\033[0;34m Radar编号\tRadar名称\tRadar位置 \033[0m"<<endl;
-        for (int i = 0; i < this->parameters.size(); i++)
-        {
-            cout << this->parameters[i].id << "\t" << this->parameters[i].name<<"\t"<<parameters[i].x<<" "<<parameters[i].y<<" "<<parameters[i].z<< endl;
+        for(int i = 0;i<num_radar;i++){
+            cout<<radar_parameter[i].id<<"\t"<<radar_parameter[i].name<<"\t"<<radar_parameter[i].x<<"\t"<<radar_parameter[i].y<<"\t"<<radar_parameter[i].z<<endl;
         }
     }
 private:
-    vector<RadarParameter> parameters;
+    //vector<RadarParameter> parameters;
+    RadarParameter *radar_parameter = nullptr;
     RadarParameter current_parameter;
     int sensor_parameter_flag;
     int reserved_sensor_num = 10;
