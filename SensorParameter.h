@@ -4,7 +4,7 @@
 
 #ifndef AUTOSENSORMANAGER_SENSORPARAMETER_H
 #define AUTOSENSORMANAGER_SENSORPARAMETER_H
-
+#include <iostream>
 #include <string>
 using namespace std;
 // 传感器参数基类

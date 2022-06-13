@@ -1,7 +1,8 @@
 #include <iostream>
 #include <string>
-#include "Sensor.h"
-#include "SensorParameter.h"
+#include <fstream>
+#include "Sensor.cpp"
+#include "SensorParameter.cpp"
 
 using namespace std;
 
@@ -97,13 +98,18 @@ template <>
 class Sensor<CameraParameter>
 {
 public:
-    Sensor(CameraParameter currentParameter) : current_parameter(currentParameter) {
-        this->parameter_num = 0;
-        this->current_parameter = new CameraParameter[this->parameter_num];
+    Sensor();
+    Sensor(const CameraParameter& currentParameter) : current_parameter(currentParameter) {
+        if(parameters.empty())
+        {
+            Sensor<CameraParameter>::parameters.reserve(10);
+        }
+        this->current_parameter = currentParameter;
+        Sensor<CameraParameter>::parameters.push_back(currentParameter);
     }
     ~Sensor()
     {
-        delete[] this->parameter;
+        parameters.clear();
     }
     void add_parameter(CameraParameter cameraParameter)
     {
@@ -125,50 +131,69 @@ public:
         cin >> cameraParameter.distortion_parameter[0] >> cameraParameter.distortion_parameter[1] >> cameraParameter.distortion_parameter[2] >> cameraParameter.distortion_parameter[3] >> cameraParameter.distortion_parameter[4];
         cout << "请输入传感器的颜色位数：";
         cin >> cameraParameter.color_bits;
+        this->parameters.push_back(cameraParameter);
     }
+    // 显示当前传感器参数
     void show_parameter()
     {
         cout << "传感器编号\t传感器名称\t传感器位置\t传感器旋转角度\t传感器分辨率\t传感器帧率\t传感器视场角\t传感器颜色位数" << endl;
-        for (int i = 0; i < this->parameter_num; i++)
+        for (int i = 0; i < this->parameters.size(); i++)
         {
-            cout << this->parameter[i].id << "\t" << this->parameter[i].name << "\t" << this->parameter[i].x << "\t" << this->parameter[i].y << "\t" << this->parameter[i].z << "\t" << this->parameter[i].roll << "\t" << this->parameter[i].pitch << "\t" << this->parameter[i].yaw << "\t" << this->parameter[i].resolution_x << "\t" << this->parameter[i].resolution_y << "\t" << this->parameter[i].frame_rate << "\t" << this->parameter[i].view_angle << "\t" << this->parameter[i].color_bits << endl;
+            cout << this->parameters[i].id << "\t" << this->parameters[i].name << "\t" << this->parameters[i].x << "\t" << this->parameters[i].y << "\t" << this->parameters[i].z << "\t" << this->parameters[i].roll << "\t" << this->parameters[i].pitch << "\t" << this->parameters[i].yaw << "\t" << this->parameters[i].resolution_x << "\t" << this->parameters[i].resolution_y << "\t" << this->parameters[i].frame_rate << "\t" << this->parameters[i].view_angle << "\t" << this->parameters[i].color_bits << endl;
         }
     }
+    // 设置当前传感器参数
     void set_current_parameter(int id)
     {
-        this->current_parameter = this->parameter[id];
+        this->current_parameter.id = id;
+    }
+
+    // 获取当前传感器的标志
+    int get_sensor_parameter_flag() const
+    {
+        return this->sensor_parameter_flag;
     }
     CameraParameter get_current_parameter()
     {
         return this->current_parameter;
     }
-    int get_parameter_num() const
+    CameraParameter get_parameter(int id)
     {
-        return this->parameter_num;
+        vector<CameraParameter>::iterator it;
+        for (it = this->parameters.begin(); it != this->parameters.end(); it++)
+        {
+            if (it->id == id)
+            {
+                return *it;
+            }
+        }
     }
-    CameraParameter *get_parameter()
-    {
-        return this->parameter;
-    }
+
 private:
-    int parameter_num;
-    CameraParameter *parameter;
+    static vector<CameraParameter> parameters;
     CameraParameter current_parameter;
+    int sensor_parameter_flag{};
+
 };
 
 
 //特化传感器类 Sensor<LidarParameter>
-template <>
-class Sensor<LidarParameter>
+template <> class Sensor<LidarParameter>
 {
 public:
-    Sensor(LidarParameter currentParameter) : current_parameter(currentParameter) {
-        this->parameter_num = 0;
-        this->current_parameter = new LidarParameter[this->parameter_num];
+    Sensor();
+    Sensor(const LidarParameter& currentParameter) : current_parameter(currentParameter) {
+        if(parameters.empty())
+        {
+            Sensor<LidarParameter>::parameters.reserve(10);
+        }
+        this->current_parameter = currentParameter;
+        Sensor<LidarParameter>::parameters.push_back(currentParameter);
     }
+
     ~Sensor()
     {
-        delete[] this->parameter;
+        parameters.clear();
     }
     void add_parameter(LidarParameter lidarParameter)
     {
@@ -185,50 +210,57 @@ public:
         cout << "请输入传感器的水平视场角：";
         cin >> lidarParameter.horizontal_view_angle;
         // 导入数组
-        this->parameter[this->parameter_num++] = lidarParameter;
+        this->parameters.push_back(lidarParameter);
     }
     void show_parameter()
     {
         cout << "传感器编号\t传感器名称\t传感器位置\t传感器旋转角度\t传感器线数\t传感器视场角\t传感器旋转频率\t传感器水平视场角" << endl;
-        for (int i = 0; i < this->parameter_num; i++)
+        for (int i = 0; i < this->parameters.size(); i++)
         {
-            cout<<this->parameter[i].id<<"\t"<<this->parameter[i].name<<"\t"<<this->parameter[i].x<<"\t"<<this->parameter[i].y<<"\t"<<this->parameter[i].z<<"\t"<<this->parameter[i].roll<<"\t"<<this->parameter[i].pitch<<"\t"<<this->parameter[i].yaw<<"\t"<<this->parameter[i].view_angle<<"\t"<<this->parameter[i].horizontal_view_angle<<endl;
+            cout << this->parameters[i].id << "\t" << this->parameters[i].name << "\t" << this->parameters[i].x << "\t" << this->parameters[i].y << "\t" << this->parameters[i].z << "\t" << this->parameters[i].roll << "\t" << this->parameters[i].pitch << "\t" << this->parameters[i].yaw << "\t" << this->parameters[i].view_angle << "\t" << this->parameters[i].horizontal_view_angle << endl;
         }
     }
     void set_current_parameter(int id)
     {
-        this->current_parameter = this->parameter[id];
+        this->current_parameter = this->parameters[id];
     }
     LidarParameter get_current_parameter()
     {
         return this->current_parameter;
     }
-    int get_parameter_num() const
+    LidarParameter get_parameter(int id)
     {
-        return this->parameter_num;
-    }
-    LidarParameter *get_parameter()
-    {
-        return this->parameter;
+        vector<LidarParameter>::iterator it;
+        for (it = this->parameters.begin(); it != this->parameters.end(); it++)
+        {
+            if (it->id == id)
+            {
+                return *it;
+            }
+        }
     }
 private:
-    int parameter_num;
-    LidarParameter *parameter;
+    vector<LidarParameter> parameters;
     LidarParameter current_parameter;
+    int sensor_parameter_flag{};
 };
 
 // Radar
-template <>
-class Sensor<RadarParameter>
+template <> class Sensor<RadarParameter>
 {
 public:
-    Sensor(RadarParameter currentParameter) : current_parameter(currentParameter) {
-        this->parameter_num = 0;
-        this->current_parameter = new RadarParameter[this->parameter_num];
+    Sensor();
+    Sensor(const RadarParameter& currentParameter) : current_parameter(currentParameter) {
+        if(parameters.empty())
+        {
+            Sensor<RadarParameter>::parameters.reserve(10);
+        }
+        this->current_parameter = currentParameter;
+        Sensor<RadarParameter>::parameters.push_back(currentParameter);
     }
     ~Sensor()
     {
-        delete[] this->parameter;
+        parameters.clear();
     }
     void add_parameter(RadarParameter radarParameter)
     {
@@ -250,38 +282,40 @@ public:
         cout << "请输入传感器的探测模式：";
         cin >> radarParameter.detect_mode;
         // 导入数组
-        this->parameter[this->parameter_num++] = radarParameter;
+        this->parameters.push_back(radarParameter);
     }
     void show_parameter()
     {
         cout << "传感器编号\t传感器名称\t传感器位置\t传感器旋转角度\t传感器分辨率\t传感器视场角\t传感器速度精度\t传感器探测模式" << endl;
-        for (int i = 0; i < this->parameter_num; i++)
+        for (int i = 0; i < parameters.size(); i++)
         {
-            cout<<this->parameter[i].id<<"\t"<<this->parameter[i].name<<"\t"<<this->parameter[i].x<<"\t"<<this->parameter[i].y<<"\t"<<this->parameter[i].z<<"\t"<<this->parameter[i].roll<<"\t"<<this->parameter[i].pitch<<"\t"<<this->parameter[i].yaw<<"\t"<<this->parameter[i].resolution[0]<<"\t"<<this->parameter[i].resolution[1]<<"\t"<<this->parameter[i].view_angle<<"\t"<<this->parameter[i].speed_accuracy[0]<<"\t"<<this->parameter[i].speed_accuracy[1]<<"\t"<<this->parameter[i].detect_mode<<endl;
+            cout << this->parameters[i].id << "\t" << this->parameters[i].name << "\t" << this->parameters[i].x << "\t" << this->parameters[i].y << "\t" << this->parameters[i].z << "\t" << this->parameters[i].roll << "\t" << this->parameters[i].pitch << "\t" << this->parameters[i].yaw << "\t" << this->parameters[i].resolution[0] << "\t" << this->parameters[i].resolution[1] << "\t" << this->parameters[i].view_angle << "\t" << this->parameters[i].speed_accuracy[0] << "\t" << this->parameters[i].speed_accuracy[1] << "\t" << this->parameters[i].detect_mode << endl;
         }
 
     }
     void set_current_parameter(int id)
     {
-        this->current_parameter = this->parameter[id];
+        this->current_parameter = this->parameters[id];
     }
     RadarParameter get_current_parameter()
     {
         return this->current_parameter;
     }
-    int get_parameter_num() const
+    RadarParameter get_parameter(int id)
     {
-        return this->parameter_num;
-    }
-    RadarParameter *get_parameter()
-    {
-        return this->parameter;
+        vector<RadarParameter>::iterator it;
+        for (it = this->parameters.begin(); it != this->parameters.end(); it++)
+        {
+            if (it->id == id)
+            {
+                return *it;
+            }
+        }
     }
 private:
-    int parameter_num;
-    RadarParameter *parameter;
+    static vector<RadarParameter> parameters;
     RadarParameter current_parameter;
-
+    int sensor_parameter_flag;
 };
 
 // 传感器管理类 SensorManager
@@ -296,66 +330,129 @@ private:
  * 保存 是将SensorManager 类中的车辆ID、传感器数量、种类、以及动态数组中的所有未被删除的传感器数据保存到文件中（注意：请文件添加时需要按照保存的格式读入数据）。
  * 根据需要定义其他必要的成员函数，如构造函数、析构函数等。
  */
-template <class Sensor>
+
 class SensorManager
 {
 public:
-    SensorManager()
+    SensorManager(){}
+    SensorManager(string Car_ID)
     {
+        this->Car_ID = Car_ID;
         this->sensor_num = 0;
         this->sensor_type = 0;
-        this->sensor_list = NULL;
+
     }
     ~SensorManager()
     {
-        if (this->sensor_list != NULL)
-        {
-            delete[] this->sensor_list;
-        }
+
     }
+    // 添加传感器
     void add_sensor()
     {
-        Sensor *sensor = new Sensor();
-        sensor->add_sensor();
-        this->sensor_list[this->sensor_num++] = sensor;
+
     }
+    // 查找传感器
     int find_sensor(int id)
     {
-        for (int i = 0; i < this->sensor_num; i++)
-        {
-            if (this->sensor_list[i]->get_id() == id)
-            {
-                this->sensor_list[i]->show_sensor();
-                return i;
-            }
-        }
-        cout << "没有找到该传感器" << endl;
-        return -1;
+
     }
+    // 删除传感器
     void delete_sensor(int id)
     {
-        for (int i = 0; i < this->sensor_num; i++)
-        {
-            if (this->sensor_list[i]->get_id() == id)
-            {
-                this->sensor_list[i]->delete_sensor();
-                this->sensor_list[i]->sensor_parameter_flag = 0;
-                return;
-            }
-        }
-        cout << "没有找到该传感器" << endl;
-    }
 
-protected:
-    CameraParameter *camera_list;
-    LidarParameter *lidar_list;
-    RadarParameter *radar_list;
+    }
+    // 列表
+    void list_sensor()
+    {
+        cout << "传感器ID\t传感器类型\t传感器名称\t传感器参数" << endl;
+
+    }
+    // 统计
+    void statistic_sensor()
+    {
+        cout << "请输入要统计的传感器类型：" << endl;
+        cout << "1.Camera" << endl;
+        cout << "2.Lidar" << endl;
+        cout << "3.Radar" << endl;
+        int type;
+        cin >> type;
+        switch (type)
+        {
+        case 1:
+            this->statistic_camera();
+            break;
+        case 2:
+            this->statistic_lidar();
+            break;
+        case 3:
+            this->statistic_radar();
+            break;
+        }
+    }
+    // 保存
+    void save_sensor()
+    {
+        ofstream outfile;
+        outfile.open("sensor.txt", ios::out);
+        outfile << this->sensor_num << endl;
+        outfile << this->sensor_type << endl;
+
+        outfile.close();
+    }
+    void statistic_camera(){}
+    void statistic_lidar(){}
+    void statistic_radar(){}
+
+private:
+    Sensor<CameraParameter> camera_list;
+    Sensor<LidarParameter> lidar_list;
+    Sensor<RadarParameter> radar_list;
     int sensor_num;
     int sensor_type;
-    Sensor *sensor_list;
+    string Car_ID;
 };
 
 int main() {
-
-    return 0;
+    // 操作界面
+    cout<<"---------------------------------------"<<endl;
+    cout<<"|           汽车传感器管理系统            |"<<endl;
+    cout<<"|      Automobile Sensor Manager       |"<<endl;
+    cout<<"|            by Alex Zheng             |"<<endl;
+    cout<<"---------------------------------------"<<endl;
+    cout<<"| 请选择要操作的功能:                     |"<<endl;
+    cout<<"| 1.从输入添加传感器                     |"<<endl;
+    cout<<"| 2.显示所有传感器                       |"<<endl;
+    cout<<"| 3.显示在线的传感器                     |"<<endl;
+    cout<<"| 4.查找指定传感器参数                    |"<<endl;
+    cout<<"| 5.删除指定传感器                       |"<<endl;
+    cout<<"| 6.传感器参数统计                       |"<<endl;
+    cout<<"| 7.保存传感器参数到文件                  |"<<endl;
+    cout<<"| 8.退出系统                            |"<<endl;
+    cout<<"---------------------------------------"<<endl;
+    int flag = 0;
+    SensorManager sensor_manager();
+    while (1) {
+        cout << "请输入您的选择：";
+        cin >> flag;
+        switch (flag) {
+            case 1:
+                break;
+            case 2:
+                break;
+            case 3:
+                break;
+            case 4:
+                break;
+            case 5:
+                break;
+            case 6:
+                break;
+            case 7:
+                break;
+            case 8: {
+                exit(0);
+            }
+        }
+        return 0;
+    }
 }
