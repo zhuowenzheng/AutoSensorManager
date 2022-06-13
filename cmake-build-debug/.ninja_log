@@ -1,0 +1,14 @@
+# ninja log v5
+0	486	1655115396600608604	CMakeFiles/AutoSensorManager.dir/main.cpp.o	80e627a0459d7b7d
+487	529	1655115396645914792	AutoSensorManager	6335f234edb51362
+1	361	1655115469285697447	CMakeFiles/AutoSensorManager.dir/main.cpp.o	80e627a0459d7b7d
+361	390	1655115469316287796	AutoSensorManager	6335f234edb51362
+1	476	1655116456300525113	CMakeFiles/AutoSensorManager.dir/main.cpp.o	80e627a0459d7b7d
+1	449	1655117035509764460	CMakeFiles/AutoSensorManager.dir/main.cpp.o	80e627a0459d7b7d
+0	516	1655117948713183210	CMakeFiles/AutoSensorManager.dir/main.cpp.o	80e627a0459d7b7d
+1	368	1655117994426279108	CMakeFiles/AutoSensorManager.dir/main.cpp.o	80e627a0459d7b7d
+368	402	1655117994461796297	AutoSensorManager	6335f234edb51362
+1	376	1655118040944623709	CMakeFiles/AutoSensorManager.dir/main.cpp.o	80e627a0459d7b7d
+376	408	1655118040978109896	AutoSensorManager	6335f234edb51362
+0	507	1655122168810752935	CMakeFiles/AutoSensorManager.dir/main.cpp.o	80e627a0459d7b7d
+508	548	1655122168853405746	AutoSensorManager	6335f234edb51362
