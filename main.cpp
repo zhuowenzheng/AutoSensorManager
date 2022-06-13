@@ -24,7 +24,8 @@ using namespace std;
 class CameraParameter : public SensorParameter
 {
 public:
-    CameraParameter(int id, string name, double x, double y, double z, double roll, double pitch, double yaw, int resolution_x, int resolution_y, int frame_rate, int view_angle, float distortion_parameter[5], int color_bits) : SensorParameter(id, name, x, y, z, roll, pitch, yaw)
+    CameraParameter(){}
+    CameraParameter(int id, string name, double x, double y, double z, double roll, double pitch, double yaw, int resolution_x, int resolution_y, int frame_rate, int view_angle, const float distortion_parameter[5], int color_bits) : SensorParameter(id, name, x, y, z, roll, pitch, yaw)
     {
         this->resolution_x = resolution_x;
         this->resolution_y = resolution_y;
@@ -36,6 +37,9 @@ public:
         }
         this->color_bits = color_bits;
     }
+
+
+
     //[]操作符重载用于访问数组元素
     int resolution_x;
     int resolution_y;
@@ -50,17 +54,13 @@ public:
 class LidarParameter : public SensorParameter
 {
 public:
+    LidarParameter() {}
     LidarParameter(int id, string name, double x, double y, double z, double roll, double pitch, double yaw, int line_num, int view_angle, int rotate_rate, int horizontal_view_angle) : SensorParameter(id, name, x, y, z, roll, pitch, yaw)
     {
         this->line_num = line_num;
         this->view_angle = view_angle;
         this->rotate_rate = rotate_rate;
         this->horizontal_view_angle = horizontal_view_angle;
-    }
-    //[]操作符重载用于访问LidarParameter数组元素
-    LidarParameter& operator[](int index)
-    {
-        return *(this + index);
     }
 
     int line_num;
@@ -74,7 +74,8 @@ public:
 class RadarParameter : public SensorParameter
 {
 public:
-    RadarParameter(int id, string name, double x, double y, double z, double roll, double pitch, double yaw, float resolution[2], int view_angle, float speed_accuracy[2], string detect_mode) : SensorParameter(id, name, x, y, z, roll, pitch, yaw)
+    RadarParameter() {}
+    RadarParameter(int id, string name, double x, double y, double z, double roll, double pitch, double yaw, const float resolution[2], int view_angle, float speed_accuracy[2], string detect_mode) : SensorParameter(id, name, x, y, z, roll, pitch, yaw)
     {
         this->resolution[0] = resolution[0];
         this->resolution[1] = resolution[1];
@@ -98,7 +99,7 @@ template <>
 class Sensor<CameraParameter>
 {
 public:
-    Sensor();
+    Sensor(){}
     Sensor(const CameraParameter& currentParameter) : current_parameter(currentParameter) {
         if(parameters.empty())
         {
@@ -113,24 +114,6 @@ public:
     }
     void add_parameter(CameraParameter cameraParameter)
     {
-        cout << "请输入传感器编号：";
-        cin >> cameraParameter.id;
-        cout << "请输入传感器名称：";
-        cin >> cameraParameter.name;
-        cout << "请输入传感器的位置（x, y, z）：";
-        cin >> cameraParameter.x >> cameraParameter.y >> cameraParameter.z;
-        cout << "请输入传感器的旋转角度（roll, pitch, yaw）：";
-        cin >> cameraParameter.roll >> cameraParameter.pitch >> cameraParameter.yaw;
-        cout << "请输入传感器的分辨率（x, y）：";
-        cin >> cameraParameter.resolution_x >> cameraParameter.resolution_y;
-        cout << "请输入传感器的帧率：";
-        cin >> cameraParameter.frame_rate;
-        cout << "请输入传感器的视场角：";
-        cin >> cameraParameter.view_angle;
-        cout << "请输入传感器的畸变参数（k1, k2, k3, k4, k5）：";
-        cin >> cameraParameter.distortion_parameter[0] >> cameraParameter.distortion_parameter[1] >> cameraParameter.distortion_parameter[2] >> cameraParameter.distortion_parameter[3] >> cameraParameter.distortion_parameter[4];
-        cout << "请输入传感器的颜色位数：";
-        cin >> cameraParameter.color_bits;
         this->parameters.push_back(cameraParameter);
     }
     // 显示当前传感器参数
@@ -139,7 +122,7 @@ public:
         cout << "传感器编号\t传感器名称\t传感器位置\t传感器旋转角度\t传感器分辨率\t传感器帧率\t传感器视场角\t传感器颜色位数" << endl;
         for (int i = 0; i < this->parameters.size(); i++)
         {
-            cout << this->parameters[i].id << "\t" << this->parameters[i].name << "\t" << this->parameters[i].x << "\t" << this->parameters[i].y << "\t" << this->parameters[i].z << "\t" << this->parameters[i].roll << "\t" << this->parameters[i].pitch << "\t" << this->parameters[i].yaw << "\t" << this->parameters[i].resolution_x << "\t" << this->parameters[i].resolution_y << "\t" << this->parameters[i].frame_rate << "\t" << this->parameters[i].view_angle << "\t" << this->parameters[i].color_bits << endl;
+            cout << parameters[i].id << "\t" << parameters[i].name << "\t" << parameters[i].x << "\t" << parameters[i].y << "\t" << parameters[i].z << "\t" << parameters[i].roll << "\t" << parameters[i].pitch << "\t" << parameters[i].yaw << "\t" << parameters[i].resolution_x << "\t" << parameters[i].resolution_y << "\t" << parameters[i].frame_rate << "\t" << parameters[i].view_angle << "\t" << parameters[i].color_bits << endl;
         }
     }
     // 设置当前传感器参数
@@ -170,7 +153,7 @@ public:
     }
 
 private:
-    static vector<CameraParameter> parameters;
+    vector<CameraParameter> parameters;
     CameraParameter current_parameter;
     int sensor_parameter_flag{};
 
@@ -181,7 +164,7 @@ private:
 template <> class Sensor<LidarParameter>
 {
 public:
-    Sensor();
+    Sensor(){}
     Sensor(const LidarParameter& currentParameter) : current_parameter(currentParameter) {
         if(parameters.empty())
         {
@@ -197,19 +180,7 @@ public:
     }
     void add_parameter(LidarParameter lidarParameter)
     {
-        cout << "请输入传感器编号：";
-        cin >> lidarParameter.id;
-        cout << "请输入传感器名称：";
-        cin >> lidarParameter.name;
-        cout << "请输入传感器的位置（x, y, z）：";
-        cin >> lidarParameter.x >> lidarParameter.y >> lidarParameter.z;
-        cout << "请输入传感器的旋转角度（roll, pitch, yaw）：";
-        cin >> lidarParameter.roll >> lidarParameter.pitch >> lidarParameter.yaw;
-        cout << "请输入传感器的视场角：";
-        cin >> lidarParameter.view_angle;
-        cout << "请输入传感器的水平视场角：";
-        cin >> lidarParameter.horizontal_view_angle;
-        // 导入数组
+        // 导入
         this->parameters.push_back(lidarParameter);
     }
     void show_parameter()
@@ -249,7 +220,7 @@ private:
 template <> class Sensor<RadarParameter>
 {
 public:
-    Sensor();
+    Sensor(){}
     Sensor(const RadarParameter& currentParameter) : current_parameter(currentParameter) {
         if(parameters.empty())
         {
@@ -264,23 +235,6 @@ public:
     }
     void add_parameter(RadarParameter radarParameter)
     {
-        //参数：分辨率（float），视场角（integer：0-60），速度精度（float point），探测模式（string）
-        cout << "请输入传感器编号：";
-        cin >> radarParameter.id;
-        cout << "请输入传感器名称：";
-        cin >> radarParameter.name;
-        cout << "请输入传感器的位置（x, y, z）：";
-        cin >> radarParameter.x >> radarParameter.y >> radarParameter.z;
-        cout << "请输入传感器的旋转角度（roll, pitch, yaw）：";
-        cin >> radarParameter.roll >> radarParameter.pitch >> radarParameter.yaw;
-        cout << "请输入传感器的分辨率(res_x,res_y)：";
-        cin >> radarParameter.resolution[0] >> radarParameter.resolution[1];
-        cout << "请输入传感器的视场角：";
-        cin >> radarParameter.view_angle;
-        cout << "请输入传感器的速度精度：";
-        cin >> radarParameter.speed_accuracy[0] >> radarParameter.speed_accuracy[1];
-        cout << "请输入传感器的探测模式：";
-        cin >> radarParameter.detect_mode;
         // 导入数组
         this->parameters.push_back(radarParameter);
     }
@@ -289,7 +243,7 @@ public:
         cout << "传感器编号\t传感器名称\t传感器位置\t传感器旋转角度\t传感器分辨率\t传感器视场角\t传感器速度精度\t传感器探测模式" << endl;
         for (int i = 0; i < parameters.size(); i++)
         {
-            cout << this->parameters[i].id << "\t" << this->parameters[i].name << "\t" << this->parameters[i].x << "\t" << this->parameters[i].y << "\t" << this->parameters[i].z << "\t" << this->parameters[i].roll << "\t" << this->parameters[i].pitch << "\t" << this->parameters[i].yaw << "\t" << this->parameters[i].resolution[0] << "\t" << this->parameters[i].resolution[1] << "\t" << this->parameters[i].view_angle << "\t" << this->parameters[i].speed_accuracy[0] << "\t" << this->parameters[i].speed_accuracy[1] << "\t" << this->parameters[i].detect_mode << endl;
+            cout << this->parameters[i].id << "\t" << this->parameters[i].name << "\t" << this->parameters[i].x << " " << this->parameters[i].y << " " << this->parameters[i].z << "\t" << this->parameters[i].roll << " " << this->parameters[i].pitch << " " << this->parameters[i].yaw << "\t" << this->parameters[i].resolution[0] << " " << this->parameters[i].resolution[1] << "\t" << this->parameters[i].view_angle << "\t" << this->parameters[i].speed_accuracy[0] << " " << this->parameters[i].speed_accuracy[1] << "\t" << this->parameters[i].detect_mode << endl;
         }
 
     }
@@ -313,7 +267,7 @@ public:
         }
     }
 private:
-    static vector<RadarParameter> parameters;
+    vector<RadarParameter> parameters;
     RadarParameter current_parameter;
     int sensor_parameter_flag;
 };
@@ -334,27 +288,107 @@ private:
 class SensorManager
 {
 public:
-    SensorManager(){}
+    SensorManager();
     SensorManager(string Car_ID)
     {
         this->Car_ID = Car_ID;
         this->sensor_num = 0;
         this->sensor_type = 0;
-
     }
-    ~SensorManager()
-    {
-
-    }
+    ~SensorManager(){}
     // 添加传感器
     void add_sensor()
     {
+        int id;
+        string name;
+        float x, y, z;
+        float roll, pitch, yaw;
+        cout << "请输入传感器类型（1:Camera;2:Lidar;3:Radar）：";
+        cin >> this->sensor_type;
+        switch (this->sensor_type) {
+        case 1: {
+            //Camera
+            //分辨率（integer, integer），帧率（integer），视场角(integer: 0-180)，畸变参数（float point[5]），色彩位数（integer）
+            int resolution_x, resolution_y, frame_rate, view_angle, color_bits;
+            float distortion_parameter[5];
+            cout << "请输入传感器编号：";
+            cin >> id;
+            cout << "请输入传感器名称：";
+            cin >> name;
+            cout << "请输入传感器的位置（x, y, z）：";
+            cin >> x >> y >> z;
+            cout << "请输入传感器的旋转角度（roll, pitch, yaw）：";
+            cin >> roll >> pitch >> yaw;
+            cout << "请输入传感器的分辨率（x, y）：";
+            cin >> resolution_x >> resolution_y;
+            cout << "请输入传感器的帧率：";
+            cin >> frame_rate;
+            cout << "请输入传感器的视场角：";
+            cin >> view_angle;
+            cout << "请输入传感器的畸变参数（k1, k2, k3, k4, k5）：";
+            cin >> distortion_parameter[0] >> distortion_parameter[1] >> distortion_parameter[2] >> distortion_parameter[3] >> distortion_parameter[4];
+            cout << "请输入传感器的颜色位数：";
+            cin >> color_bits;
+            CameraParameter camera(id, name, x, y, z, roll, pitch, yaw, resolution_x, resolution_y, frame_rate, view_angle, distortion_parameter, color_bits);
+            this->camera_list.add_parameter(camera);
+            break;
+        }
+        case 2:{
+            //Lidar
+            //线数（integer），视场角（integer: 0-45），旋转频率（integer），水平视场角（integer：0-360）
+            int line_num, view_angle, rotation_rate, horizontal_view_angle;
+
+            cout << "请输入传感器编号：";
+            cin >> id;
+            cout << "请输入传感器名称：";
+            cin >> name;
+            cout << "请输入传感器的位置（x, y, z）：";
+            cin >> x >> y >> z;
+            cout << "请输入传感器的旋转角度（roll, pitch, yaw）：";
+            cin >> roll >> pitch >> yaw;
+            cout << "请输入传感器的线数：";
+            cin >> line_num;
+            cout << "请输入传感器的视场角：";
+            cin >> view_angle;
+            cout << "请输入传感器的旋转频率：";
+            cin >> rotation_rate;
+            cout << "请输入传感器的水平视场角：";
+            cin >> horizontal_view_angle;
+        }
+        case 3:{
+            //Radar
+            float resolution[2];
+            float view_angle;
+            float speed_accuracy[2];
+            string detect_mode;
+            //参数：分辨率（float），视场角（integer：0-60），速度精度（float point），探测模式（string）
+            cout << "请输入传感器编号：";
+            cin >> id;
+            cout << "请输入传感器名称：";
+            cin >> name;
+            cout << "请输入传感器的位置（x, y, z）：";
+            cin >> x >> y >> z;
+            cout << "请输入传感器的旋转角度（roll, pitch, yaw）：";
+            cin >> roll >> pitch >> yaw;
+            cout << "请输入传感器的分辨率(res_x,res_y)：";
+            cin >> resolution[0] >> resolution[1];
+            cout << "请输入传感器的视场角：";
+            cin >> view_angle;
+            cout << "请输入传感器的速度精度：";
+            cin >> speed_accuracy[0] >> speed_accuracy[1];
+            cout << "请输入传感器的探测模式：";
+            cin >> detect_mode;
+            RadarParameter radar(id, name, x, y, z, roll, pitch, yaw, resolution, view_angle, speed_accuracy, detect_mode);
+            radar_list.add_parameter(radar);
+            break;
+        }
+        }
 
     }
     // 查找传感器
     int find_sensor(int id)
     {
-
+        return 0;
     }
     // 删除传感器
     void delete_sensor(int id)
@@ -364,8 +398,9 @@ public:
     // 列表
     void list_sensor()
     {
-        cout << "传感器ID\t传感器类型\t传感器名称\t传感器参数" << endl;
-
+        camera_list.show_parameter();
+        lidar_list.show_parameter();
+        radar_list.show_parameter();
     }
     // 统计
     void statistic_sensor()
@@ -401,7 +436,10 @@ public:
     }
     void statistic_camera(){}
     void statistic_lidar(){}
-    void statistic_radar(){}
+    void statistic_radar(){
+        cout << "现有radar如下：" << endl;
+
+    }
 
 private:
     Sensor<CameraParameter> camera_list;
@@ -420,9 +458,9 @@ int main() {
     cout<<"|            by Alex Zheng             |"<<endl;
     cout<<"---------------------------------------"<<endl;
     cout<<"| 请选择要操作的功能:                     |"<<endl;
-    cout<<"| 1.从输入添加传感器                     |"<<endl;
-    cout<<"| 2.显示所有传感器                       |"<<endl;
-    cout<<"| 3.显示在线的传感器                     |"<<endl;
+    cout<<"| 1.从输入添加传感器                      |"<<endl;
+    cout<<"| 2.显示所有传感器                        |"<<endl;
+    cout<<"| 3.显示在线的传感器                      |"<<endl;
     cout<<"| 4.查找指定传感器参数                    |"<<endl;
     cout<<"| 5.删除指定传感器                       |"<<endl;
     cout<<"| 6.传感器参数统计                       |"<<endl;
@@ -430,15 +468,20 @@ int main() {
     cout<<"| 8.退出系统                            |"<<endl;
     cout<<"---------------------------------------"<<endl;
     int flag = 0;
-    SensorManager sensor_manager();
+    SensorManager sensor_manager("Default Car");
     while (1) {
         cout << "请输入您的选择：";
         cin >> flag;
         switch (flag) {
-            case 1:
+            case 1:{
+                sensor_manager.add_sensor();
                 break;
+            }
             case 2:
+            {
+                sensor_manager.list_sensor();
                 break;
+            }
             case 3:
                 break;
             case 4:
@@ -453,6 +496,6 @@ int main() {
                 exit(0);
             }
         }
-        return 0;
     }
+    return 0;
 }

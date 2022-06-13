@@ -13,6 +13,7 @@ using namespace std;
 class SensorParameter
 {
 public:
+    SensorParameter(){}
     SensorParameter(int id, string name, double x, double y, double z, double roll, double pitch, double yaw)
     {
         this->id = id;
