@@ -119,7 +119,7 @@ public:
     // 显示当前传感器参数
     void show_parameter()
     {
-        cout << "传感器编号\t传感器名称\t传感器位置\t传感器旋转角度\t传感器分辨率\t传感器帧率\t传感器视场角\t传感器颜色位数" << endl;
+        cout << "编号\t名称\t位置\t旋转角度\t分辨率\t帧率\t视场角\t颜色位数" << endl;
         for (int i = 0; i < this->parameters.size(); i++)
         {
             cout << parameters[i].id << "\t" << parameters[i].name << "\t" << parameters[i].x << "\t" << parameters[i].y << "\t" << parameters[i].z << "\t" << parameters[i].roll << "\t" << parameters[i].pitch << "\t" << parameters[i].yaw << "\t" << parameters[i].resolution_x << "\t" << parameters[i].resolution_y << "\t" << parameters[i].frame_rate << "\t" << parameters[i].view_angle << "\t" << parameters[i].color_bits << endl;
@@ -151,7 +151,19 @@ public:
             }
         }
     }
-
+    int get_sensor_num(){
+        return this->parameters.size();
+    }
+    vector<CameraParameter> get_parameters(){
+        return this->parameters;
+    }
+    void list_sensors(){
+        cout<<"Camera编号\tCamera名称\tCamera位置"<<endl;
+        for (int i = 0; i < this->parameters.size(); i++)
+        {
+            cout << this->parameters[i].id << "\t" << this->parameters[i].name<<"\t"<<parameters[i].x<<" "<<parameters[i].y<<" "<<parameters[i].z<< endl;
+        }
+    }
 private:
     vector<CameraParameter> parameters;
     CameraParameter current_parameter;
@@ -185,7 +197,7 @@ public:
     }
     void show_parameter()
     {
-        cout << "传感器编号\t传感器名称\t传感器位置\t传感器旋转角度\t传感器线数\t传感器视场角\t传感器旋转频率\t传感器水平视场角" << endl;
+        cout << "编号\t名称\t位置\t旋转角度\t线数\t视场角\t旋转频率\t水平视场角" << endl;
         for (int i = 0; i < this->parameters.size(); i++)
         {
             cout << this->parameters[i].id << "\t" << this->parameters[i].name << "\t" << this->parameters[i].x << "\t" << this->parameters[i].y << "\t" << this->parameters[i].z << "\t" << this->parameters[i].roll << "\t" << this->parameters[i].pitch << "\t" << this->parameters[i].yaw << "\t" << this->parameters[i].view_angle << "\t" << this->parameters[i].horizontal_view_angle << endl;
@@ -208,6 +220,20 @@ public:
             {
                 return *it;
             }
+        }
+    }
+    int get_sensor_num(){
+        return this->parameters.size();
+    }
+    vector<LidarParameter> get_parameters()
+    {
+        return this->parameters;
+    }
+    void list_sensors(){
+        cout<<"Lidar编号\tLidar名称\tLidar位置"<<endl;
+        for (int i = 0; i < this->parameters.size(); i++)
+        {
+            cout << this->parameters[i].id << "\t" << this->parameters[i].name<<"\t"<<parameters[i].x<<" "<<parameters[i].y<<" "<<parameters[i].z<< endl;
         }
     }
 private:
@@ -240,7 +266,7 @@ public:
     }
     void show_parameter()
     {
-        cout << "传感器编号\t传感器名称\t传感器位置\t传感器旋转角度\t传感器分辨率\t传感器视场角\t传感器速度精度\t传感器探测模式" << endl;
+        cout << "编号\t名称\t位置\t旋转角度\t分辨率\t视场角\t速度精度\t探测模式" << endl;
         for (int i = 0; i < parameters.size(); i++)
         {
             cout << this->parameters[i].id << "\t" << this->parameters[i].name << "\t" << this->parameters[i].x << " " << this->parameters[i].y << " " << this->parameters[i].z << "\t" << this->parameters[i].roll << " " << this->parameters[i].pitch << " " << this->parameters[i].yaw << "\t" << this->parameters[i].resolution[0] << " " << this->parameters[i].resolution[1] << "\t" << this->parameters[i].view_angle << "\t" << this->parameters[i].speed_accuracy[0] << " " << this->parameters[i].speed_accuracy[1] << "\t" << this->parameters[i].detect_mode << endl;
@@ -264,6 +290,20 @@ public:
             {
                 return *it;
             }
+        }
+    }
+    int get_sensor_num(){
+        return this->parameters.size();
+    }
+    vector<RadarParameter> get_parameters()
+    {
+        return this->parameters;
+    }
+    void list_sensors(){
+        cout<<"Radar编号\tRadar名称\tRadar位置"<<endl;
+        for (int i = 0; i < this->parameters.size(); i++)
+        {
+            cout << this->parameters[i].id << "\t" << this->parameters[i].name<<"\t"<<parameters[i].x<<" "<<parameters[i].y<<" "<<parameters[i].z<< endl;
         }
     }
 private:
@@ -331,6 +371,9 @@ public:
             cin >> color_bits;
             CameraParameter camera(id, name, x, y, z, roll, pitch, yaw, resolution_x, resolution_y, frame_rate, view_angle, distortion_parameter, color_bits);
             this->camera_list.add_parameter(camera);
+            sensor_num++;
+            cout<< "[INFO] 添加Camera: "<<id<<":"<<name<<"成功！" << endl<<endl;
+            sensor_type=0;
             break;
         }
         case 2:{
@@ -354,6 +397,13 @@ public:
             cin >> rotation_rate;
             cout << "请输入传感器的水平视场角：";
             cin >> horizontal_view_angle;
+            LidarParameter lidar(id, name, x, y, z, roll, pitch, yaw, line_num, view_angle, rotation_rate, horizontal_view_angle);
+            lidar_list.add_parameter(lidar);
+            sensor_num++;
+            cout<< "[INFO] 添加Lidar: "<<id<<":"<<name<<"成功！" << endl<<endl;
+            sensor_type=0;
+            break;
+
         }
         case 3:{
             //Radar
@@ -380,6 +430,9 @@ public:
             cin >> detect_mode;
             RadarParameter radar(id, name, x, y, z, roll, pitch, yaw, resolution, view_angle, speed_accuracy, detect_mode);
             radar_list.add_parameter(radar);
+            sensor_num++;
+            cout<< "[INFO] 添加Radar: "<<id<<":"<<name<<"成功！" << endl<<endl;
+            sensor_type=0;
             break;
         }
         }
@@ -398,12 +451,19 @@ public:
     // 列表
     void list_sensor()
     {
-        camera_list.show_parameter();
-        lidar_list.show_parameter();
-        radar_list.show_parameter();
+        cout<<"-----------------传感器列表-----------------"<<endl;
+        cout<<"现共有"<<sensor_num<<"个传感器："<<endl;
+        cout<<"其中Camera:"<<camera_list.get_sensor_num()<<"个, ";
+        cout<<"Lidar:"<<lidar_list.get_sensor_num()<<"个, ";
+        cout<<"Radar:"<<radar_list.get_sensor_num()<<"个."<<endl;
+        camera_list.list_sensors();
+        lidar_list.list_sensors();
+        radar_list.list_sensors();
+        cout<<"------------------------------------------------"<<endl;
+
     }
     // 统计
-    void statistic_sensor()
+    void statistic_sensor_parameter()
     {
         cout << "请输入要统计的传感器类型：" << endl;
         cout << "1.Camera" << endl;
@@ -414,14 +474,27 @@ public:
         switch (type)
         {
         case 1:
-            this->statistic_camera();
+        {
+            cout<<"---------------------------------Camera---------------------------------"<<endl;
+            camera_list.show_parameter();
+            cout<<"----------------------------------END-----------------------------------"<<endl<<endl;
             break;
+        }
+
         case 2:
-            this->statistic_lidar();
+        {
+            cout<<"---------------------------------Lidar---------------------------------"<<endl;
+            lidar_list.show_parameter();
+            cout<<"----------------------------------END-----------------------------------"<<endl<<endl;
             break;
+        }
         case 3:
-            this->statistic_radar();
+        {
+            cout<<"---------------------------------Radar---------------------------------"<<endl;
+            radar_list.show_parameter();
+            cout<<"----------------------------------END-----------------------------------"<<endl<<endl;
             break;
+        }
         }
     }
     // 保存
@@ -434,18 +507,12 @@ public:
 
         outfile.close();
     }
-    void statistic_camera(){}
-    void statistic_lidar(){}
-    void statistic_radar(){
-        cout << "现有radar如下：" << endl;
-
-    }
 
 private:
     Sensor<CameraParameter> camera_list;
     Sensor<LidarParameter> lidar_list;
     Sensor<RadarParameter> radar_list;
-    int sensor_num;
+    int sensor_num = 0;
     int sensor_type;
     string Car_ID;
 };
@@ -467,9 +534,10 @@ int main() {
     cout<<"| 7.保存传感器参数到文件                  |"<<endl;
     cout<<"| 8.退出系统                            |"<<endl;
     cout<<"---------------------------------------"<<endl;
-    int flag = 0;
+
     SensorManager sensor_manager("Default Car");
     while (1) {
+        int flag = 0;
         cout << "请输入您的选择：";
         cin >> flag;
         switch (flag) {
@@ -488,8 +556,10 @@ int main() {
                 break;
             case 5:
                 break;
-            case 6:
+            case 6:{
+                sensor_manager.statistic_sensor_parameter();
                 break;
+            }
             case 7:
                 break;
             case 8: {
