@@ -685,10 +685,13 @@ public:
         }
     }
     // 保存
-    void save_sensor()
+    void save_parameter_tofile(string file_directory)
     {
         ofstream outfile;
-        outfile.open("sensor.txt", ios::out);
+        outfile.open("camera.txt", ios::out);
+        outfile.open("lidar.txt",ios::out);
+        outfile.open("radar.txt",ios::out);
+
         outfile << this->sensor_num << endl;
         outfile << this->sensor_type << endl;
 
@@ -733,8 +736,49 @@ int main() {
         cout << "请输入您的选择：";
         cin >> choice;
         switch (choice) {
-            case 1:{
-
+            case 1: {
+                bool file_input = true;
+                while (file_input) {
+                    cout << "请输入要添加的传感器类型：" << endl;
+                    cout << "1.Camera" << endl;
+                    cout << "2.Lidar" << endl;
+                    cout << "3.Radar" << endl;
+                    cout << "4.退出" << endl;
+                    int type;
+                    cin >> type;
+                    switch (type) {
+                        case 1: {
+                            cout << "请输入要添加的Camera参数文件路径：" << endl;
+                            string file_directory_camera;
+                            cin >> file_directory_camera;
+                            //sensor_manager.add_camera_from_file(file_directory_camera);
+                            break;
+                        }
+                        case 2: {
+                            cout << "请输入要添加的Lidar参数文件路径：" << endl;
+                            string file_directory_lidar;
+                            cin >> file_directory_lidar;
+                            //sensor_manager.add_lidar_from_file(file_directory_lidar);
+                            break;
+                        }
+                        case 3: {
+                            cout << "请输入要添加的Radar参数文件路径：" << endl;
+                            string file_directory_radar;
+                            cin >> file_directory_radar;
+                            //sensor_manager.add_radar_from_file(file_directory_radar);
+                            break;
+                        }
+                        case 4: {
+                            file_input = false;
+                            cout << "[INFO] 退出添加传感器参数操作界面" << endl;
+                            break;
+                        }
+                        default: {
+                            cout << "[ERROR] 输入错误，请重新输入" << endl;
+                            break;
+                        }
+                    }
+                }
                 break;
             }
             case 2:
@@ -759,7 +803,10 @@ int main() {
                 sensor_manager.statistic_sensor_parameter();
                 break;
             }
-            case 8:
+            case 8:{
+                sensor_manager.save_parameter_tofile("/User/alexzheng/Desktop/");
+                break;
+            }
                 break;
             case 9: {
                 cout << "\033[0;33m Developer:alexzheng@tongji.edu.cn; AlexZ 2022. All rights reserved. \033[0m" << endl;
