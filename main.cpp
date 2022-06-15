@@ -5,6 +5,7 @@
 #include "Sensor.cpp"
 #include "SensorParameter.cpp"
 #include "sensorErrorException.cpp"
+//#include
 
 using namespace std;
 
@@ -47,6 +48,16 @@ public:
     int view_angle{};
     float distortion_parameter[5]{};
     int color_bits{};
+    // 重载>>操作符
+    friend istream& operator>>(istream& is, CameraParameter& camera_parameter){
+        is >> camera_parameter.id >> camera_parameter.name >> camera_parameter.x >> camera_parameter.y >> camera_parameter.z >> camera_parameter.roll >> camera_parameter.pitch >> camera_parameter.yaw >> camera_parameter.resolution_x >> camera_parameter.resolution_y >> camera_parameter.frame_rate >> camera_parameter.view_angle >> camera_parameter.distortion_parameter[0] >> camera_parameter.distortion_parameter[1] >> camera_parameter.distortion_parameter[2] >> camera_parameter.distortion_parameter[3] >> camera_parameter.distortion_parameter[4] >> camera_parameter.color_bits;
+        return is;
+    }
+    // 重载<<操作符
+    friend ostream& operator<<(ostream& os, const CameraParameter& camera_parameter){
+        os << camera_parameter.id << " " << camera_parameter.name << " " << camera_parameter.x << " " << camera_parameter.y << " " << camera_parameter.z << " " << camera_parameter.roll << " " << camera_parameter.pitch << " " << camera_parameter.yaw << " " << camera_parameter.resolution_x << " " << camera_parameter.resolution_y << " " << camera_parameter.frame_rate << " " << camera_parameter.view_angle << " " << camera_parameter.distortion_parameter[0] << " " << camera_parameter.distortion_parameter[1] << " " << camera_parameter.distortion_parameter[2] << " " << camera_parameter.distortion_parameter[3] << " " << camera_parameter.distortion_parameter[4] << " " << camera_parameter.color_bits<<endl;
+        return os;
+    }
 };
 
 // class LidarParameter
@@ -67,6 +78,18 @@ public:
     int view_angle;
     int rotate_rate;
     int horizontal_view_angle;
+
+    // 重载>>操作符
+    friend istream& operator>>(istream& is, LidarParameter& lidar_parameter){
+        is >> lidar_parameter.id >> lidar_parameter.name >> lidar_parameter.x >> lidar_parameter.y >> lidar_parameter.z >> lidar_parameter.roll >> lidar_parameter.pitch >> lidar_parameter.yaw >> lidar_parameter.line_num >> lidar_parameter.view_angle >> lidar_parameter.rotate_rate >> lidar_parameter.horizontal_view_angle;
+        return is;
+    }
+    // 重载<<操作符
+    friend ostream& operator<<(ostream& os, const LidarParameter& lidar_parameter){
+        os << lidar_parameter.id << " " << lidar_parameter.name << " " << lidar_parameter.x << " " << lidar_parameter.y << " " << lidar_parameter.z << " " << lidar_parameter.roll << " " << lidar_parameter.pitch << " " << lidar_parameter.yaw << " " << lidar_parameter.line_num << " " << lidar_parameter.view_angle << " " << lidar_parameter.rotate_rate << " " << lidar_parameter.horizontal_view_angle;
+        return os;
+    }
+
 };
 
 // class RadarParameter
@@ -88,6 +111,17 @@ public:
     int view_angle;
     float speed_accuracy[2]{};
     string detect_mode;
+
+    // 重载>>操作符
+    friend istream& operator>>(istream& is, RadarParameter& radar_parameter){
+        is >> radar_parameter.id >> radar_parameter.name >> radar_parameter.x >> radar_parameter.y >> radar_parameter.z >> radar_parameter.roll >> radar_parameter.pitch >> radar_parameter.yaw >> radar_parameter.resolution[0] >> radar_parameter.resolution[1] >> radar_parameter.view_angle >> radar_parameter.speed_accuracy[0] >> radar_parameter.speed_accuracy[1] >> radar_parameter.detect_mode;
+        return is;
+    }
+    // 重载<<操作符
+    friend ostream& operator<<(ostream& os, const RadarParameter& radar_parameter){
+        os << radar_parameter.id << " " << radar_parameter.name << " " << radar_parameter.x << " " << radar_parameter.y << " " << radar_parameter.z << " " << radar_parameter.roll << " " << radar_parameter.pitch << " " << radar_parameter.yaw << " " << radar_parameter.resolution[0] << " " << radar_parameter.resolution[1] << " " << radar_parameter.view_angle << " " << radar_parameter.speed_accuracy[0] << " " << radar_parameter.speed_accuracy[1] << " " << radar_parameter.detect_mode;
+        return os;
+    }
 };
 
 // 特化传感器类 Sensor<CameraParameter>
@@ -103,7 +137,7 @@ class Sensor<CameraParameter>
 public:
     Sensor(){}
     // 拷贝构造函数
-    Sensor(CameraParameter camera_parameter)
+    Sensor(CameraParameter &camera_parameter)
     {
         this->camera_parameter = &camera_parameter;
     }
@@ -134,8 +168,8 @@ public:
             //camera_parameter = (CameraParameter*)realloc(camera_parameter, reserved_sensor_num);
         }
         *(camera_parameter+num_camera++) = cameraParameter;
-        // 传感器有效标签，默认为true
-        is_effective[cameraParameter.id] = true;
+        // 传感器有效标签，默认为true=1
+        is_effective[cameraParameter.id] = 1;
     }
     // 显示当前传感器参数
     void show_parameter()
@@ -182,7 +216,6 @@ public:
                 return camera_parameter[i];
             }
         }
-
     }
     int get_sensor_num(){
         return num_camera;
@@ -192,7 +225,7 @@ public:
         int num = 0;
         for(int i=0;i<num_camera;i++)
         {
-            if(is_effective[i])
+            if(is_effective[i]==1)
             {
                 num++;
             }
@@ -206,32 +239,39 @@ public:
 
     void list_sensors(){
         cout<<"\033[0;34m Camera编号\tCamera名称\tCamera位置 \033[0m"<<endl;
-        for (int i = 0; i < num_camera; i++)
+        for (int i = 0; i < num_camera;)
         {
-            cout << camera_parameter[i].id<<"\t"<<camera_parameter[i].name << "\t" << camera_parameter[i].x << "," << camera_parameter[i].y << "," << camera_parameter[i].z << endl;
+            //未被删除
+            if (is_effective[camera_parameter[i].id]!=-1)
+            {
+                cout << camera_parameter[i].id << "\t" << camera_parameter[i].name << "\t" << camera_parameter[i].x << "," << camera_parameter[i].y << "," << camera_parameter[i].z << endl;
+                i++;
+            }
+            //cout << camera_parameter[i].id<<"\t"<<camera_parameter[i].name << "\t" << camera_parameter[i].x << "," << camera_parameter[i].y << "," << camera_parameter[i].z << endl;
             //cout << this->parameters[i].id << "\t" << this->parameters[i].name<<"\t"<<parameters[i].x<<" "<<parameters[i].y<<" "<<parameters[i].z<< endl;
         }
     }
     void list_online_sensors(){
         cout<<"\033[0;34m Camera编号\tCamera名称\tCamera位置 \033[0m"<<endl;
-        for (int i = 0; i < num_camera; i++)
+        for (int i = 0; i < get_online_sensors_num(); )
         {
-            if(is_effective[i])
+            // 在线且未被删除
+            if(is_effective[camera_parameter[i].id]==1)
             {
                 cout << camera_parameter[i].id<<"\t"<<camera_parameter[i].name << "\t" << camera_parameter[i].x << "," << camera_parameter[i].y << "," << camera_parameter[i].z << endl;
                 //cout << this->parameters[i].id << "\t" << this->parameters[i].name<<"\t"<<parameters[i].x<<" "<<parameters[i].y<<" "<<parameters[i].z<< endl;
+                i++;
             }
         }
     }
 
 
-//vector<CameraParameter> parameters;
-CameraParameter *camera_parameter = nullptr;
+    CameraParameter *camera_parameter = nullptr;
+    map<int,int> is_effective;//-1:deleted 0:offline 1:online
 private:
     CameraParameter current_parameter;
     int sensor_parameter_flag;
     int reserved_sensor_num = 10;
-    map<int,int> is_effective;
 };
 
 static int num_lidar = 0;
@@ -241,7 +281,7 @@ template <> class Sensor<LidarParameter>
 public:
     Sensor(){}
     // 拷贝构造函数
-    Sensor(LidarParameter lidarParameter)
+    Sensor(LidarParameter &lidarParameter)
     {
         this->lidar_parameter = &lidarParameter;
     }
@@ -271,7 +311,7 @@ public:
 
         }
         *(lidar_parameter+num_lidar++) = lidarParameter;
-        is_effective[lidarParameter.id] = true;
+        is_effective[lidarParameter.id] = 1;
     }
     void show_parameter()
     {
@@ -319,7 +359,7 @@ public:
         int num = 0;
         for(int i=0;i<num_lidar;i++)
         {
-            if(is_effective[i])
+            if(is_effective[i]==1)
             {
                 num++;
             }
@@ -332,27 +372,30 @@ public:
     }*/
     void list_sensors(){
         cout<<"\033[0;34m Lidar编号\tLidar名称\tLidar位置 \033[0m"<<endl;
-        for (int i = 0; i < num_lidar;i++){
-            cout << lidar_parameter[i].id<<"\t"<<lidar_parameter[i].name << "\t" << lidar_parameter[i].x << "," << lidar_parameter[i].y << "," << lidar_parameter[i].z << endl;
+        for (int i = 0; i < num_lidar;){
+            if(lidar_parameter[i].id!=-1){
+                cout<<lidar_parameter[i].id<<"\t"<<lidar_parameter[i].name<<"\t"<<lidar_parameter[i].x<<","<<lidar_parameter[i].y<<","<<lidar_parameter[i].z<<endl;
+                i++;
+            }
         }
     }
 
     void list_online_sensors(){
         cout<<"\033[0;34m Lidar编号\tLidar名称\tLidar位置 \033[0m"<<endl;
-        for (int i = 0; i < num_lidar;i++){
-            if(is_effective[i]){
+        for (int i = 0; i < num_lidar;){
+            if(is_effective[lidar_parameter[i].id]==1){
                 cout << lidar_parameter[i].id<<"\t"<<lidar_parameter[i].name << "\t" << lidar_parameter[i].x << "," << lidar_parameter[i].y << "," << lidar_parameter[i].z << endl;
+                i++;
             }
         }
     }
 
-//vector<LidarParameter> parameters;
-LidarParameter* lidar_parameter = nullptr;
+    LidarParameter* lidar_parameter = nullptr;
+    map<int,int> is_effective;
 private:
     LidarParameter current_parameter;
     int sensor_parameter_flag;
     int reserved_sensor_num = 10;
-    map<int,int> is_effective;
 };
 
 // 特化传感器类 Sensor<RadarParameter>
@@ -361,7 +404,7 @@ template <> class Sensor<RadarParameter>
 {
 public:
     Sensor(){}
-    Sensor(RadarParameter radarParameter)
+    Sensor(RadarParameter &radarParameter)
     {
         this->radar_parameter = &radarParameter;
     }
@@ -388,12 +431,13 @@ public:
             delete [] temp;
         }
         *(radar_parameter+num_radar++) = radarParameter;
-        is_effective[radarParameter.id] = true;
+        is_effective[radarParameter.id] = 1;
     }
     void show_parameter() {
 
         cout << "\033[0;34m 编号\t名称\t位置\t旋转角度\t分辨率\t视场角\t速度精度\t探测模式 \033[0m" << endl;
         for (int i = 0; i < num_radar; i++) {
+
             cout << radar_parameter[i].id << "\t" << radar_parameter[i].name << "\t" << radar_parameter[i].x << "\t"
                  << radar_parameter[i].y << "\t" << radar_parameter[i].z << "\t" << radar_parameter[i].roll << "\t"
                  << radar_parameter[i].pitch << "\t" << radar_parameter[i].yaw << "\t" << radar_parameter[i].resolution[0]<<","<<radar_parameter[i].resolution[1]
@@ -440,7 +484,7 @@ public:
         int num = 0;
         for(int i=0;i<num_radar;i++)
         {
-            if(is_effective[i])
+            if(is_effective[i]==1)
             {
                 num++;
             }
@@ -453,27 +497,31 @@ public:
     }*/
     void list_sensors(){
         cout<<"\033[0;34m Radar编号\tRadar名称\tRadar位置 \033[0m"<<endl;
-        for(int i = 0;i<num_radar;i++){
-            cout<<radar_parameter[i].id<<"\t"<<radar_parameter[i].name<<"\t"<<radar_parameter[i].x<<"\t"<<radar_parameter[i].y<<"\t"<<radar_parameter[i].z<<endl;
+        for(int i = 0;i<num_radar;){
+            if(is_effective[radar_parameter[i].id]==1){
+                cout << radar_parameter[i].id<<"\t"<<radar_parameter[i].name << "\t" << radar_parameter[i].x << "," << radar_parameter[i].y << "," << radar_parameter[i].z << endl;
+                i++;
+            }
         }
     }
 
     void list_online_sensors(){
         cout<<"\033[0;34m Radar编号\tRadar名称\tRadar位置 \033[0m"<<endl;
-        for(int i = 0;i<num_radar;i++){
-            if(is_effective[i]){
+        for(int i = 0;i<num_radar;){
+            if(is_effective[radar_parameter[i].id]==1){
                 cout<<radar_parameter[i].id<<"\t"<<radar_parameter[i].name<<"\t"<<radar_parameter[i].x<<"\t"<<radar_parameter[i].y<<"\t"<<radar_parameter[i].z<<endl;
+                i++;
             }
         }
     }
 
-//vector<RadarParameter> parameters;
-RadarParameter *radar_parameter = nullptr;
+
+    RadarParameter *radar_parameter = nullptr;
+    map<int,int> is_effective; //标志，由于指针在Parameter上，故用map实现
 private:
     RadarParameter current_parameter;
     int sensor_parameter_flag;
     int reserved_sensor_num = 10;
-    map<int,int> is_effective;
 };
 
 // 传感器管理类 SensorManager
@@ -501,12 +549,34 @@ public:
     }
     ~SensorManager(){}
     // 文件导入camera
+
+    fstream & seek_to_line(fstream & in, int line)
+    //将打开的文件in，定位到line行。
+    {
+        int i;
+        char buf[1024];
+        in.seekg(0, ios::beg);  //定位到文件开始。
+        for (i = 0; i < line; i++)
+        {
+            in.getline(buf, sizeof(buf));//读取行。
+        }
+        return in;
+    }
     void add_camera_from_file(string file_path){
-        ifstream file(file_path);
+        fstream file(file_path);
         if(!file.is_open()){
             cout<<"\033[0;31m 文件打开失败 \033[0m"<<endl;
             return;
         }
+        file.open(file_path, ios::in);
+        seek_to_line(file, 2);
+        while(!file.eof()){
+            CameraParameter camera;
+            file>>camera;
+            cout<<camera;
+            camera_list.add_parameter(camera);
+        }
+        file.close();
     }
     //文件导入lidar
     void add_lidar_from_file(string file_path){
@@ -618,15 +688,133 @@ public:
         }
 
     }
+
+
     // 查找传感器
-    int find_sensor(int id)
+    int find_sensor(int id,string* sensor_type)
     {
-        return 0;
+        // 遍历camera_list、lidar_list、radar_list，查找id
+        int condition;
+        switch (condition) {
+            case 1:
+                //camera
+                for(int i=0;i<camera_list.get_sensor_num();i++)
+                {
+                    if(camera_list.camera_parameter[i].id==id)
+                    {
+                        *sensor_type = "camera";
+                        return i;
+                    }
+                }
+                break;
+            case 2:
+                //lidar
+                for(int i=0;i<lidar_list.get_sensor_num();i++)
+                {
+                    if(lidar_list.lidar_parameter[i].id==id)
+                    {
+                        *sensor_type = "lidar";
+                        return i;
+                    }
+                }
+                break;
+            case 3:
+                //radar
+                for(int i=0;i<radar_list.get_sensor_num();i++)
+                {
+                    if(radar_list.radar_parameter[i].id==id)
+                    {
+                        *sensor_type = "radar";
+                        return i;
+                    }
+                }
+                break;
+        }
+        return -1;
     }
     // 删除传感器
     void delete_sensor(int id)
     {
+        //main中已对id存在性进行检查
+        // 遍历camera_list、lidar_list、radar_list，查找id并删除
+        for(int i = 0; i < camera_list.get_sensor_num(); i++)
+        {
+            if(camera_list.camera_parameter[i].id == id)
+            {
+                // 删除camera_list中的传感器
+                string name = camera_list.camera_parameter[i].name;
+                camera_list.is_effective[i] = -1;
+                camera_list.camera_parameter[i].id = -1;
+                camera_list.camera_parameter[i].name = "";
+                camera_list.camera_parameter[i].x = 0;
+                camera_list.camera_parameter[i].y = 0;
+                camera_list.camera_parameter[i].z = 0;
+                camera_list.camera_parameter[i].roll = 0;
+                camera_list.camera_parameter[i].pitch = 0;
+                camera_list.camera_parameter[i].yaw = 0;
+                camera_list.camera_parameter[i].resolution_x = 0;
+                camera_list.camera_parameter[i].resolution_y = 0;
+                camera_list.camera_parameter[i].frame_rate = 0;
+                camera_list.camera_parameter[i].view_angle = 0;
+                camera_list.camera_parameter[i].color_bits = 0;
+                num_camera--;
+                sensor_num--;
+                cout<< "[INFO] 删除Camera: "<<id<<":"<<name<<"成功！" <<endl;
+                return;
+            }
+        }
+        // lidar
+        for(int i =0;i< lidar_list.get_sensor_num();i++){
+            if(lidar_list.lidar_parameter[i].id==id){
+                // 删除lidar_list中的传感器
+                string name = lidar_list.lidar_parameter[i].name;
+                lidar_list.is_effective[i] = -1;
+                lidar_list.lidar_parameter[i].id = -1;
+                lidar_list.lidar_parameter[i].name = "";
+                lidar_list.lidar_parameter[i].x = 0;
+                lidar_list.lidar_parameter[i].y = 0;
+                lidar_list.lidar_parameter[i].z = 0;
+                lidar_list.lidar_parameter[i].roll = 0;
+                lidar_list.lidar_parameter[i].pitch = 0;
+                lidar_list.lidar_parameter[i].yaw = 0;
+                lidar_list.lidar_parameter[i].line_num = 0;
+                lidar_list.lidar_parameter[i].view_angle = 0;
+                lidar_list.lidar_parameter[i].horizontal_view_angle = 0;
+                lidar_list.lidar_parameter[i].rotate_rate = 0;
 
+                num_lidar--;
+                sensor_num--;
+                cout<< "[INFO] 删除Lidar: "<<id<<":"<<name<<"成功！" <<endl;
+                return;
+            }
+        }
+        //radar
+        for(int i =0;i< radar_list.get_sensor_num();i++){
+            if(radar_list.radar_parameter[i].id==id){
+                // 删除radar_list中的传感器
+                string name = radar_list.radar_parameter[i].name;
+                radar_list.is_effective[i] = -1;//-1表示deleted
+                radar_list.radar_parameter[i].id = -1;
+                radar_list.radar_parameter[i].name = "";
+                radar_list.radar_parameter[i].x = 0;
+                radar_list.radar_parameter[i].y = 0;
+                radar_list.radar_parameter[i].z = 0;
+                radar_list.radar_parameter[i].roll = 0;
+                radar_list.radar_parameter[i].pitch = 0;
+                radar_list.radar_parameter[i].yaw = 0;
+                radar_list.radar_parameter[i].resolution[0] = 0;
+                radar_list.radar_parameter[i].resolution[1] = 0;
+                radar_list.radar_parameter[i].view_angle = 0;
+                radar_list.radar_parameter[i].speed_accuracy[0] = 0;
+                radar_list.radar_parameter[i].speed_accuracy[1] = 0;
+                radar_list.radar_parameter[i].detect_mode="";
+
+                num_radar--;
+                sensor_num--;
+                cout<< "[INFO] 删除Radar: "<<id<<":"<<name<<"成功！" <<endl;
+                return;
+            }
+        }
     }
     // 列表
     void list_all_sensor()
@@ -654,9 +842,68 @@ public:
         radar_list.list_online_sensors();
         cout<<"-------------------------------------------"<<endl;
     }
-    // 统计
+    // 统计指定传感器
+    void statistic_specified_sensors(int sensor_id[],int count){
+        cout<<"-----------------传感器统计-----------------"<<endl;
+        cout<<"统计传感器："<<endl;
+        cout<<count<<endl;
+        string types[count];
+        int camera_num = 0;
+        int lidar_num = 0;
+        int radar_num = 0;
+        for(int i =0;i<count;i++){
+            find_sensor(sensor_id[i],&types[i]);
+            if(types[i]=="camera"){
+                camera_num++;
+            }
+            else if(types[i]=="lidar"){
+                lidar_num++;
+            }
+            else if(types[i]=="radar"){
+                radar_num++;
+            }
+        }
+        if(camera_num>0){
+            cout<<"Camera:"<<camera_num<<"个"<<endl;
+            cout<<"ID"<<"\t"<<"名称"<<"\t"<<"位置"<<endl;
+
+            for(int i =0;i<count;i++){
+                if(types[i]=="camera")
+                {
+                cout<<camera_list.camera_parameter[i].id<<"\t"<<camera_list.camera_parameter[i].name<<"\t";
+                cout<<"("<<camera_list.camera_parameter[i].x<<","<<camera_list.camera_parameter[i].y<<","<<camera_list.camera_parameter[i].z<<")"<<endl<<endl;
+                }
+            }
+        }
+        if(lidar_num>0){
+            cout<<"Lidar:"<<lidar_num<<"个"<<endl;
+            cout<<"ID"<<"\t"<<"名称"<<"\t"<<"位置"<<endl;
+
+            for(int i =0;i<count;i++){
+                if(types[i]=="lidar")
+                {
+                cout<<lidar_list.lidar_parameter[i].id<<"\t"<<lidar_list.lidar_parameter[i].name<<"\t";
+                cout<<"("<<lidar_list.lidar_parameter[i].x<<","<<lidar_list.lidar_parameter[i].y<<","<<lidar_list.lidar_parameter[i].z<<")"<<endl<<endl;
+                }
+            }
+        }
+        if(radar_num>0){
+            cout<<"Radar:"<<radar_num<<"个"<<endl;
+            cout<<"ID"<<"\t"<<"名称"<<"\t"<<"位置"<<endl;
+
+            for(int i =0;i<count;i++){
+                if(types[i]=="radar")
+                {
+                cout<<radar_list.radar_parameter[i].id<<"\t"<<radar_list.radar_parameter[i].name<<"\t";
+                cout<<"("<<radar_list.radar_parameter[i].x<<","<<radar_list.radar_parameter[i].y<<","<<radar_list.radar_parameter[i].z<<")"<<endl<<endl;
+                }
+            }
+        }
+
+    }
     void statistic_sensor_parameter()
     {
+        cout<<"-----------------传感器参数统计-----------------"<<endl;
         cout << "请输入要统计的传感器类型：" << endl;
         cout << "1.Camera" << endl;
         cout << "2.Lidar" << endl;
@@ -691,71 +938,53 @@ public:
         }
     }
     // 保存
-    void save_parameter_tofile(string file_directory)
+    void save_parameter_tofile(string file_directory,string carID)
     {
+        string file_directory_prefix = file_directory+"/"+carID+"_";
         fstream outfile;
-        outfile.open(file_directory+"/camera.txt", ios::out);
+        outfile.open(file_directory_prefix+"camera.txt", ios::out);
         // 写入camera参数
-        for(int i = 0; i < camera_list.get_sensor_num(); i++){
+        outfile << carID << endl;
+        outfile << camera_list.get_sensor_num() << endl;
+        for(int i = 0; i < camera_list.get_sensor_num(); ){
             // Camera参数继承传感器参数基类，分辨率（integer, integer），帧率（integer），视场角(integer: 0-180)，畸变参数（float point[5]），色彩位数（integer）
-            outfile<<camera_list.camera_parameter[i].id<<" ";
-            outfile<<camera_list.camera_parameter[i].name<<" ";
-            outfile<<camera_list.camera_parameter[i].x<<" ";
-            outfile<<camera_list.camera_parameter[i].y<<" ";
-            outfile<<camera_list.camera_parameter[i].z<<" ";
-            outfile<<camera_list.camera_parameter[i].roll<<" ";
-            outfile<<camera_list.camera_parameter[i].pitch<<" ";
-            outfile<<camera_list.camera_parameter[i].yaw<<" ";
-            outfile<<camera_list.camera_parameter[i].resolution_x<<" ";
-            outfile<<camera_list.camera_parameter[i].resolution_y<<" ";
-            outfile<<camera_list.camera_parameter[i].frame_rate<<" ";
-            outfile<<camera_list.camera_parameter[i].view_angle<<" ";
-            for(int j = 0;j<5;j++){
-                outfile<<camera_list.camera_parameter[i].distortion_parameter[j]<<" ";
+            if(camera_list.is_effective[camera_list.camera_parameter[i].id]){
+                outfile << camera_list.camera_parameter[i]<< endl;
+                i++;
             }
-            outfile<<camera_list.camera_parameter[i].color_bits<<endl;
         }
         outfile.close();
         cout<<"[INFO] 保存Camera参数成功！"<<endl;
         // 写入lidar参数
         // 继承SensorParameter，参数：线数（integer），视场角（integer: 0-45），旋转频率（integer），水平视场角（integer：0-360）
-        outfile.open(file_directory+"/lidar.txt",ios::out);
-        for(int i = 0; i < lidar_list.get_sensor_num(); i++) {
-            outfile << lidar_list.lidar_parameter[i].id << " ";
-            outfile << lidar_list.lidar_parameter[i].name << " ";
-            outfile << lidar_list.lidar_parameter[i].x << " ";
-            outfile << lidar_list.lidar_parameter[i].y << " ";
-            outfile << lidar_list.lidar_parameter[i].z << " ";
-            outfile << lidar_list.lidar_parameter[i].roll << " ";
-            outfile << lidar_list.lidar_parameter[i].pitch << " ";
-            outfile << lidar_list.lidar_parameter[i].yaw << " ";
-            outfile << lidar_list.lidar_parameter[i].line_num << " ";
-            outfile << lidar_list.lidar_parameter[i].view_angle << " ";
-            outfile << lidar_list.lidar_parameter[i].rotate_rate << " ";
-            outfile << lidar_list.lidar_parameter[i].horizontal_view_angle << " ";
+        outfile.open(file_directory_prefix+"lidar.txt",ios::out);
+        outfile << carID << endl;
+        outfile << lidar_list.get_sensor_num() << endl;
+        for(int i = 0; i < lidar_list.get_sensor_num(); ) {
+            if(lidar_list.is_effective[lidar_list.lidar_parameter[i].id]){
+                outfile << lidar_list.lidar_parameter[i];
+                i++;
+            }
         }
         outfile.close();
         cout<<"[INFO] 保存Lidar参数成功！"<<endl;
         // 写入radar参数
         // 继承SensorParameter，参数：分辨率（float point），视场角（integer：0-60），速度精度（float point），探测模式（string）
-        outfile.open(file_directory+"/radar.txt",ios::out);
-        for(int i = 0; i < radar_list.get_sensor_num(); i++) {
-            outfile << radar_list.radar_parameter[i].id << " ";
-            outfile << radar_list.radar_parameter[i].name << " ";
-            outfile << radar_list.radar_parameter[i].x << " ";
-            outfile << radar_list.radar_parameter[i].y << " ";
-            outfile << radar_list.radar_parameter[i].z << " ";
-            outfile << radar_list.radar_parameter[i].roll << " ";
-            outfile << radar_list.radar_parameter[i].pitch << " ";
-            outfile << radar_list.radar_parameter[i].yaw << " ";
-            outfile << radar_list.radar_parameter[i].resolution[0] << " ";
-            outfile << radar_list.radar_parameter[i].resolution[1] << " ";
-            outfile << radar_list.radar_parameter[i].view_angle << " ";
-            outfile << radar_list.radar_parameter[i].speed_accuracy << " ";
-            outfile << radar_list.radar_parameter[i].detect_mode << " ";
+        outfile.open(file_directory_prefix+"radar.txt",ios::out);
+        outfile << carID << endl;
+        outfile << radar_list.get_sensor_num() << endl;
+        for(int i = 0; i < radar_list.get_sensor_num(); ) {
+            if(radar_list.is_effective[radar_list.radar_parameter[i].id]){
+                outfile << radar_list.radar_parameter[i];
+                i++;
+            }
         }
         outfile.close();
         cout<<"[INFO] 保存Radar参数成功！"<<endl;
+    }
+
+    string get_Car_ID(){
+        return Car_ID;
     }
 
 private:
@@ -789,7 +1018,7 @@ void ui_initialize(){
 
 int main() {
     ui_initialize();
-    SensorManager sensor_manager("Default Car");
+    SensorManager sensor_manager("Default-Car");
     while (1) {
         int choice = 0;
         ui_initialize();
@@ -805,13 +1034,20 @@ int main() {
                     cout << "3.Radar" << endl;
                     cout << "4.退出" << endl;
                     int type;
+                    cin.clear();
+                    cin.ignore();
+                    cin.sync();
                     cin >> type;
                     switch (type) {
                         case 1: {
                             cout << "请输入要添加的Camera参数文件路径：" << endl;
                             string file_directory_camera;
+                            cin.clear();
+                            cin.ignore();
+                            cin.sync();
                             cin >> file_directory_camera;
-                            //sensor_manager.add_camera_from_file(file_directory_camera);
+                            sensor_manager.add_camera_from_file(file_directory_camera);
+                            type = 4;
                             break;
                         }
                         case 2: {
@@ -835,6 +1071,10 @@ int main() {
                         }
                         default: {
                             cout << "[ERROR] 输入错误，请重新输入" << endl;
+                            cin.clear();
+                            cin.ignore();
+                            cin.sync();
+                            type = 4;
                             break;
                         }
                     }
@@ -855,16 +1095,45 @@ int main() {
                 sensor_manager.list_online_sensor();
                 break;
             }
-            case 5:
+            case 5:{
+                cout<<"请输入要查找的传感器id："<<endl;
+                int sensor_id;
+                string sensor_type;
+                cin>>sensor_id;
+                sensor_manager.find_sensor(sensor_id,&sensor_type);
                 break;
-            case 6:
+            }
+            case 6:{
+                cout<<"请输入要删除的传感器id："<<endl;
+                int sensor_id;
+                cin>>sensor_id;
+                // 判断传感器是否存在
+                string temp;
+                if(sensor_manager.find_sensor(sensor_id,&temp)!=-1){
+                    sensor_manager.delete_sensor(sensor_id);
+                }
+                else{
+                    cout<<"[ERROR] 传感器不存在！"<<endl;
+                }
                 break;
+            }
             case 7:{
-                sensor_manager.statistic_sensor_parameter();
+                //显示某个或多个传感器的ID，并能够按种类显示；统计传感器所在位置
+                cout<<"请输入要统计的传感器ID,以空格分隔："<<endl;
+                int sensor_id[num_camera+num_lidar+num_radar];
+                int count = 0;
+                for(int i=0;i<num_camera+num_lidar+num_radar;i++){
+                    cin>>sensor_id[i];
+                    if(sensor_id[i]==-1){
+                        break;
+                    }
+                    count++;
+                }
+                sensor_manager.statistic_specified_sensors(sensor_id,count);
                 break;
             }
             case 8:{
-                sensor_manager.save_parameter_tofile("/Users/alexzheng/Desktop");
+                sensor_manager.save_parameter_tofile("/Users/alexzheng/Desktop",sensor_manager.get_Car_ID());
                 break;
             }
 
@@ -872,13 +1141,10 @@ int main() {
                 cout << "\033[0;33m Developer:alexzheng@tongji.edu.cn; AlexZ 2022. All rights reserved. \033[0m" << endl;
                 cout << "\033[0;33m [INFO] 感谢使用智能汽车传感器管理系统，您已退出！\033[0m" << endl;
                 exit(0);
-                break;
             }
         }
     }
-    return 0;
 }
 
 // 未完成之任务：
 // 1.限定参数范围 exception
-// 2.添加接口
