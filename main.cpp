@@ -225,9 +225,9 @@ public:
     }
 
 
+//vector<CameraParameter> parameters;
+CameraParameter *camera_parameter = nullptr;
 private:
-    //vector<CameraParameter> parameters;
-    CameraParameter *camera_parameter = nullptr;
     CameraParameter current_parameter;
     int sensor_parameter_flag;
     int reserved_sensor_num = 10;
@@ -346,9 +346,9 @@ public:
         }
     }
 
+//vector<LidarParameter> parameters;
+LidarParameter* lidar_parameter = nullptr;
 private:
-    //vector<LidarParameter> parameters;
-    LidarParameter* lidar_parameter = nullptr;
     LidarParameter current_parameter;
     int sensor_parameter_flag;
     int reserved_sensor_num = 10;
@@ -424,7 +424,13 @@ public:
     }
     RadarParameter get_parameter(int id)
     {
-
+        for(int i=0;i<num_radar;i++)
+        {
+            if(radar_parameter[i].id == id)
+            {
+                return radar_parameter[i];
+            }
+        }
     }
     int get_sensor_num(){
         return num_radar;
@@ -461,9 +467,9 @@ public:
         }
     }
 
+//vector<RadarParameter> parameters;
+RadarParameter *radar_parameter = nullptr;
 private:
-    //vector<RadarParameter> parameters;
-    RadarParameter *radar_parameter = nullptr;
     RadarParameter current_parameter;
     int sensor_parameter_flag;
     int reserved_sensor_num = 10;
@@ -687,15 +693,69 @@ public:
     // 保存
     void save_parameter_tofile(string file_directory)
     {
-        ofstream outfile;
-        outfile.open("camera.txt", ios::out);
-        outfile.open("lidar.txt",ios::out);
-        outfile.open("radar.txt",ios::out);
-
-        outfile << this->sensor_num << endl;
-        outfile << this->sensor_type << endl;
-
+        fstream outfile;
+        outfile.open(file_directory+"/camera.txt", ios::out);
+        // 写入camera参数
+        for(int i = 0; i < camera_list.get_sensor_num(); i++){
+            // Camera参数继承传感器参数基类，分辨率（integer, integer），帧率（integer），视场角(integer: 0-180)，畸变参数（float point[5]），色彩位数（integer）
+            outfile<<camera_list.camera_parameter[i].id<<" ";
+            outfile<<camera_list.camera_parameter[i].name<<" ";
+            outfile<<camera_list.camera_parameter[i].x<<" ";
+            outfile<<camera_list.camera_parameter[i].y<<" ";
+            outfile<<camera_list.camera_parameter[i].z<<" ";
+            outfile<<camera_list.camera_parameter[i].roll<<" ";
+            outfile<<camera_list.camera_parameter[i].pitch<<" ";
+            outfile<<camera_list.camera_parameter[i].yaw<<" ";
+            outfile<<camera_list.camera_parameter[i].resolution_x<<" ";
+            outfile<<camera_list.camera_parameter[i].resolution_y<<" ";
+            outfile<<camera_list.camera_parameter[i].frame_rate<<" ";
+            outfile<<camera_list.camera_parameter[i].view_angle<<" ";
+            for(int j = 0;j<5;j++){
+                outfile<<camera_list.camera_parameter[i].distortion_parameter[j]<<" ";
+            }
+            outfile<<camera_list.camera_parameter[i].color_bits<<endl;
+        }
         outfile.close();
+        cout<<"[INFO] 保存Camera参数成功！"<<endl;
+        // 写入lidar参数
+        // 继承SensorParameter，参数：线数（integer），视场角（integer: 0-45），旋转频率（integer），水平视场角（integer：0-360）
+        outfile.open(file_directory+"/lidar.txt",ios::out);
+        for(int i = 0; i < lidar_list.get_sensor_num(); i++) {
+            outfile << lidar_list.lidar_parameter[i].id << " ";
+            outfile << lidar_list.lidar_parameter[i].name << " ";
+            outfile << lidar_list.lidar_parameter[i].x << " ";
+            outfile << lidar_list.lidar_parameter[i].y << " ";
+            outfile << lidar_list.lidar_parameter[i].z << " ";
+            outfile << lidar_list.lidar_parameter[i].roll << " ";
+            outfile << lidar_list.lidar_parameter[i].pitch << " ";
+            outfile << lidar_list.lidar_parameter[i].yaw << " ";
+            outfile << lidar_list.lidar_parameter[i].line_num << " ";
+            outfile << lidar_list.lidar_parameter[i].view_angle << " ";
+            outfile << lidar_list.lidar_parameter[i].rotate_rate << " ";
+            outfile << lidar_list.lidar_parameter[i].horizontal_view_angle << " ";
+        }
+        outfile.close();
+        cout<<"[INFO] 保存Lidar参数成功！"<<endl;
+        // 写入radar参数
+        // 继承SensorParameter，参数：分辨率（float point），视场角（integer：0-60），速度精度（float point），探测模式（string）
+        outfile.open(file_directory+"/radar.txt",ios::out);
+        for(int i = 0; i < radar_list.get_sensor_num(); i++) {
+            outfile << radar_list.radar_parameter[i].id << " ";
+            outfile << radar_list.radar_parameter[i].name << " ";
+            outfile << radar_list.radar_parameter[i].x << " ";
+            outfile << radar_list.radar_parameter[i].y << " ";
+            outfile << radar_list.radar_parameter[i].z << " ";
+            outfile << radar_list.radar_parameter[i].roll << " ";
+            outfile << radar_list.radar_parameter[i].pitch << " ";
+            outfile << radar_list.radar_parameter[i].yaw << " ";
+            outfile << radar_list.radar_parameter[i].resolution[0] << " ";
+            outfile << radar_list.radar_parameter[i].resolution[1] << " ";
+            outfile << radar_list.radar_parameter[i].view_angle << " ";
+            outfile << radar_list.radar_parameter[i].speed_accuracy << " ";
+            outfile << radar_list.radar_parameter[i].detect_mode << " ";
+        }
+        outfile.close();
+        cout<<"[INFO] 保存Radar参数成功！"<<endl;
     }
 
 private:
@@ -804,14 +864,15 @@ int main() {
                 break;
             }
             case 8:{
-                sensor_manager.save_parameter_tofile("/User/alexzheng/Desktop/");
+                sensor_manager.save_parameter_tofile("/Users/alexzheng/Desktop");
                 break;
             }
-                break;
+
             case 9: {
                 cout << "\033[0;33m Developer:alexzheng@tongji.edu.cn; AlexZ 2022. All rights reserved. \033[0m" << endl;
                 cout << "\033[0;33m [INFO] 感谢使用智能汽车传感器管理系统，您已退出！\033[0m" << endl;
                 exit(0);
+                break;
             }
         }
     }
