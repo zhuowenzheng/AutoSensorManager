@@ -43,12 +43,9 @@ public:
     }
     // 设置传感器参数数组标志
     void setSensorParameterFlag(int _sensor_parameter_flag) {
-        this->sensor_parameter_flag = _sensor_parameter_flag;
+        this->is_effective = _sensor_parameter_flag;
     }
     // 获取传感器参数数组标志
-    int getSensorParameterFlag() {
-        return sensor_parameter_flag;
-    }
     void add_parameter(T sensor_parameter) {
         if (sensor_parameter_actual_size == sensor_parameter_size) {
             // 如果传感器参数数组实际大小等于传感器参数数组大小，则需增加传感器参数数组大小
@@ -57,13 +54,13 @@ public:
             for (int i = 0; i < sensor_parameter_actual_size; i++) {
                 temp[i] = sensor_parameter[i];
             }
-            delete[] sensor_parameter;
+            sensor_parameter = temp;
+            delete[] temp;
         }
+        sensor_parameter[sensor_parameter_actual_size] = sensor_parameter;
     }
     void delete_parameter(int index) {
         if (index < sensor_parameter_actual_size) {
-            // 如果传感器参数数组实际大小等于传感器参数数组大小，则需增加传感器参数数组大小
-            sensor_parameter_size *= 2;
             T *temp = new T[sensor_parameter_size];
             for (int i = 0; i < sensor_parameter_actual_size; i++) {
                 if (i < index) {
@@ -76,10 +73,16 @@ public:
         }
     }
 
-    void set_parameter(int index, T sensor_parameter) {
-        if (index < sensor_parameter_actual_size) {
-            sensor_parameter[index] = sensor_parameter;
-        }
+    void set_parameter(int id, string name, double x, double y, double z, double roll, double pitch, double yaw,int index, T sensor_parameter) {
+        // 设置传感器参数
+        this->sensor_parameter[index].name = name;
+        this->sensor_parameter[index].x = x;
+        this->sensor_parameter[index].y = y;
+        this->sensor_parameter[index].z = z;
+        this->sensor_parameter[index].roll = roll;
+        this->sensor_parameter[index].pitch = pitch;
+        this->sensor_parameter[index].yaw = yaw;
+        this->sensor_parameter[index].id = id;
     }
     T get_parameter(int index) {
         if (index < sensor_parameter_actual_size) {
@@ -106,7 +109,7 @@ private:
     T* sensor_parameter;
     int sensor_parameter_actual_size;
     int sensor_parameter_size;
-    int sensor_parameter_flag;
+    map<int ,int> is_effective;
 };
 
 

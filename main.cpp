@@ -43,7 +43,8 @@ public:
         }
         this->color_bits = color_bits;
     }
-
+    // copy constructor
+    ~CameraParameter(){}
     int resolution_x{};
     int resolution_y{};
     int frame_rate{};
@@ -75,7 +76,7 @@ public:
         this->rotate_rate = rotate_rate;
         this->horizontal_view_angle = horizontal_view_angle;
     }
-
+    ~LidarParameter(){}
     int line_num;
     int view_angle;
     int rotate_rate;
@@ -109,6 +110,9 @@ public:
         this->speed_accuracy[1] = speed_accuracy[1];
         this->detect_mode = detect_mode;
     }
+    // copy constructor`
+
+    ~RadarParameter(){}
     float resolution[2]{};
     int view_angle;
     float speed_accuracy[2]{};
@@ -150,8 +154,6 @@ public:
     }
     void add_parameter(CameraParameter cameraParameter)
     {
-        //遍历is_effective,若key=id已存在，则不添加并输出提示信息
-
         if(this->camera_parameter == nullptr)
         {
             this->camera_parameter = new CameraParameter[reserved_sensor_num];
@@ -202,11 +204,7 @@ public:
         this->current_parameter.view_angle = view_angle;
         this->current_parameter.color_bits = color_bits;
     }
-    // 获取当前传感器的标志
-    int get_sensor_parameter_flag() const
-    {
-        return this->sensor_parameter_flag;
-    }
+
     CameraParameter get_current_parameter()
     {
         return this->current_parameter;
@@ -244,16 +242,13 @@ public:
 
     void list_sensors(){
         cout<<"\033[0;34m Camera编号\tCamera名称\tCamera位置 \033[0m"<<endl;
-        for (int i = 0; i < num_camera;)
-        {
+        for (int i = 0; i < num_camera;) {
             //未被删除
-            if (is_effective[camera_parameter[i].id]!=-1&&camera_parameter[i].id!=-1)
-            {
-                cout << camera_parameter[i].id << "\t" << camera_parameter[i].name << "\t" << camera_parameter[i].x << "," << camera_parameter[i].y << "," << camera_parameter[i].z << endl;
+            if (is_effective[camera_parameter[i].id] != -1 && camera_parameter[i].id != -1) {
+                cout << camera_parameter[i].id << "\t" << camera_parameter[i].name << "\t" << camera_parameter[i].x
+                     << "," << camera_parameter[i].y << "," << camera_parameter[i].z << endl;
                 i++;
             }
-            //cout << camera_parameter[i].id<<"\t"<<camera_parameter[i].name << "\t" << camera_parameter[i].x << "," << camera_parameter[i].y << "," << camera_parameter[i].z << endl;
-            //cout << this->parameters[i].id << "\t" << this->parameters[i].name<<"\t"<<parameters[i].x<<" "<<parameters[i].y<<" "<<parameters[i].z<< endl;
         }
     }
     void list_online_sensors(){
@@ -398,10 +393,6 @@ public:
         }
     }
 
-    CameraParameter *camera_parameter = nullptr;
-    map<int,int> is_effective;//-1:deleted 0:offline 1:online
-
-
     void sort_parameter(int param) {
         //按照指定的参数降序排序
         // param: 1.resolution_x,resolution_y 2.frame_rate 3.view_angle 4.color_bits
@@ -440,9 +431,11 @@ public:
         delete[] temp_camera_parameter;
     }
 
+    CameraParameter *camera_parameter = nullptr;
+    map<int,int> is_effective;//-1:deleted 0:offline 1:online
+
 private:
     CameraParameter current_parameter;
-    int sensor_parameter_flag;
     int reserved_sensor_num = 10;
 };
 
@@ -731,7 +724,6 @@ public:
 
 private:
     LidarParameter current_parameter;
-    int sensor_parameter_flag;
     int reserved_sensor_num = 10;
 };
 
@@ -991,7 +983,6 @@ public:
 
 private:
     RadarParameter current_parameter;
-    int sensor_parameter_flag;
     int reserved_sensor_num = 10;
 };
 
@@ -1011,12 +1002,11 @@ private:
 class SensorManager
 {
 public:
-    SensorManager();
+    SensorManager(){}
     SensorManager(string Car_ID)
     {
         this->Car_ID = Car_ID;
         this->sensor_num = 0;
-        this->sensor_type = 0;
     }
     ~SensorManager(){}
 
@@ -1110,9 +1100,10 @@ public:
         string name;
         float x, y, z;
         float roll, pitch, yaw;
+        int sensor_type;
         cout << "请输入传感器类型（1:Camera;2:Lidar;3:Radar）：";
-        cin >> this->sensor_type;
-        switch (this->sensor_type) {
+        cin >> sensor_type;
+        switch (sensor_type) {
         case 1: {
             //Camera
             //分辨率（integer, integer），帧率（integer），视场角(integer: 0-180)，畸变参数（float point[5]），色彩位数（integer）
@@ -1607,7 +1598,6 @@ private:
     Sensor<LidarParameter> lidar_list;
     Sensor<RadarParameter> radar_list;
     int sensor_num = 0;
-    int sensor_type;
     string Car_ID;
 };
 
