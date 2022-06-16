@@ -1800,18 +1800,29 @@ int main() {
                     case 1: {
                         cout<<"1.分辨率 2.帧率 3.视场角 4.颜色位数"<<endl;
                         cin>>sensor_parameter;
-                        switch(sensor_parameter){}
-
+                        sensor_manager.sort_sensor(sensor_type,sensor_parameter);
+                        break;
                     }
                     case 2:{
-                        //
+                        cout<<"1.线数 2.视场角 3.旋转频率 4.水平视场角"<<endl;
+                        cin>>sensor_parameter;
+                        sensor_manager.sort_sensor(sensor_type,sensor_parameter);
+                        break;
                     }
                     case 3:{
-
+                        cout<<"1.分辨率 2.视场角"<<endl;
+                        cin>>sensor_parameter;
+                        sensor_manager.sort_sensor(sensor_type,sensor_parameter);
+                        break;
+                    }
+                    default:{
+                        cout<<"[ERROR] 传感器种类输入错误！"<<endl;
+                        cin.clear();
+                        cin.sync();
+                        cin.ignore();
+                        break;
                     }
                 }
-                cin>>sensor_parameter;
-                sensor_manager.sort_sensor(sensor_type,sensor_parameter);
                 break;
             }
             //系统退出入口
