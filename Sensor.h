@@ -49,6 +49,50 @@ public:
     int getSensorParameterFlag() {
         return sensor_parameter_flag;
     }
+    void add_parameter(T sensor_parameter) {
+        if (sensor_parameter_actual_size == sensor_parameter_size) {
+            // 如果传感器参数数组实际大小等于传感器参数数组大小，则需增加传感器参数数组大小
+            sensor_parameter_size *= 2;
+            T *temp = new T[sensor_parameter_size];
+            for (int i = 0; i < sensor_parameter_actual_size; i++) {
+                temp[i] = sensor_parameter[i];
+            }
+            delete[] sensor_parameter;
+        }
+    }
+    void delete_parameter(int index) {
+        if (index < sensor_parameter_actual_size) {
+            // 如果传感器参数数组实际大小等于传感器参数数组大小，则需增加传感器参数数组大小
+            sensor_parameter_size *= 2;
+            T *temp = new T[sensor_parameter_size];
+            for (int i = 0; i < sensor_parameter_actual_size; i++) {
+                if (i < index) {
+                    temp[i] = sensor_parameter[i];
+                } else if (i > index) {
+                    temp[i] = sensor_parameter[i - 1];
+                }
+            }
+            delete[] sensor_parameter;
+        }
+    }
+
+    void set_parameter(int index, T sensor_parameter) {
+        if (index < sensor_parameter_actual_size) {
+            sensor_parameter[index] = sensor_parameter;
+        }
+    }
+    T get_parameter(int index) {
+        if (index < sensor_parameter_actual_size) {
+            return sensor_parameter[index];
+        }
+    }
+    void show_parameter() {
+        for (int i = 0; i < sensor_parameter_actual_size; i++) {
+            cout << sensor_parameter[i] << " ";
+        }
+        cout << endl;
+    }
+
     // 传感器参数数组标志区分当前传感器对象是否被删除、是否有效等情况。未被删除且有效，则为1，否则为0。
     // 数据成员
     // 将模板类中用于传感器参数类对象存取的数据模型由动态数组改为简单链表模型
@@ -60,7 +104,6 @@ public:
 
 private:
     T* sensor_parameter;
-
     int sensor_parameter_actual_size;
     int sensor_parameter_size;
     int sensor_parameter_flag;
