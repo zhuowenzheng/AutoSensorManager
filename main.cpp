@@ -281,11 +281,13 @@ public:
         cin >> choice;
         switch (choice) {
             case 1:
+                cout << "原名称："<<camera_parameter[i].name<<endl;
                 cout << "请输入新的名称：" << endl;
                 cin >> camera_parameter[i].name;
                 cout << "修改成功！Camera " << camera_parameter[i].id << "的名称更新为" << camera_parameter[i].name << "!" << endl;
                 break;
             case 2:
+                cout << "原位置："<<camera_parameter[i].x<<","<<camera_parameter[i].y<<","<<camera_parameter[i].z<<endl;
                 cout << "请输入新的位置：" << endl;
                 cin >> camera_parameter[i].x >> camera_parameter[i].y >> camera_parameter[i].z;
                 cout << "修改成功！Camera " << camera_parameter[i].id << "的位置更新为" << camera_parameter[i].x << ","
@@ -304,12 +306,14 @@ public:
                 cin >> parameter_id;
                 switch (parameter_id) {
                     case 1:
+                        cout << "原姿态角：" << camera_parameter[i].roll << "," << camera_parameter[i].pitch << "," << camera_parameter[i].yaw << endl;
                         cout << " 请输入新的姿态角：" << endl;
                         cin >> camera_parameter[i].roll >> camera_parameter[i].pitch >> camera_parameter[i].yaw;
                         cout << " 修改成功！Camera " << camera_parameter[i].id << "的姿态角更新为" << camera_parameter[i].roll
                              << "," << camera_parameter[i].pitch << "," << camera_parameter[i].yaw << "!" << endl;
                         break;
                     case 2:
+                        cout << "原分辨率：" << camera_parameter[i].resolution_x << "," << camera_parameter[i].resolution_y << endl;
                         cout << " 请输入新的分辨率：" << endl;
                         cin >> camera_parameter[i].resolution_x >> camera_parameter[i].resolution_y;
                         cout << " 修改成功！Camera " << camera_parameter[i].id << "的分辨率更新为"
@@ -317,6 +321,7 @@ public:
                              << endl;
                         break;
                     case 3:
+                        cout << "原帧率：" << camera_parameter[i].frame_rate << endl;
                         cout << " 请输入新的帧率：" << endl;
                         cin >> camera_parameter[i].frame_rate;
                         cout << " 修改成功！Camera " << camera_parameter[i].id << "的帧率更新为" << camera_parameter[i].frame_rate
@@ -325,6 +330,7 @@ public:
                     case 4:{
                         bool flag = true;
                         int view_angle;
+                        cout<<"原视场角："<<camera_parameter[i].view_angle<<endl;
                         while(flag){
                             cout << "请输入新的视场角(range：0-180)：";
                             try{
@@ -342,6 +348,7 @@ public:
                         break;
                     }
                     case 5:
+                        cout << "原畸变参数：" << camera_parameter[i].distortion_parameter << endl;
                         cout << " 请输入新的畸变参数：" << endl;
                         for (float &j: camera_parameter[i].distortion_parameter)
                             cin >> j;
@@ -349,6 +356,7 @@ public:
                              << camera_parameter[i].distortion_parameter << "!" << endl;
                         break;
                     case 6:
+                        cout << "原颜色位数：" << camera_parameter[i].color_bits << endl;
                         cout << " 请输入新的颜色位数：" << endl;
                         cin >> camera_parameter[i].color_bits;
                         cout << " 修改成功！Camera " << camera_parameter[i].id << "的颜色位数更新为"
@@ -563,11 +571,13 @@ public:
         switch (choice)
         {
         case 1:
+            cout << "原名称：" << lidar_parameter[i].name << endl;
             cout << "请输入新的名称：" << endl;
             cin >> lidar_parameter[i].name;
             cout << "修改成功！Lidar"<<lidar_parameter[i].id<<"的名称更新为：" << lidar_parameter[i].name << endl;
             break;
         case 2:
+            cout << "原位置：" << lidar_parameter[i].x << "," << lidar_parameter[i].y << "," << lidar_parameter[i].z << endl;
             cout << "请输入新的位置：" << endl;
             cin >> lidar_parameter[i].x >> lidar_parameter[i].y >> lidar_parameter[i].z;
             cout << "修改成功！Lidar"<<lidar_parameter[i].id<<"的位置更新为：" << lidar_parameter[i].x << "," << lidar_parameter[i].y << "," << lidar_parameter[i].z << endl;
@@ -585,11 +595,13 @@ public:
             switch (parameter_id)
             {
             case 1:
+                cout << "原姿态角：" << lidar_parameter[i].roll << "," << lidar_parameter[i].pitch << "," << lidar_parameter[i].yaw << endl;
                 cout << "请输入新的姿态角：" << endl;
                 cin >> lidar_parameter[i].roll >> lidar_parameter[i].pitch >> lidar_parameter[i].yaw;
                 cout << "修改成功！Lidar"<<lidar_parameter[i].id<<"的姿态角更新为：" << lidar_parameter[i].roll << "," << lidar_parameter[i].pitch << "," << lidar_parameter[i].yaw << endl;
                 break;
             case 2:
+                cout << "原线数：" << lidar_parameter[i].line_num << endl;
                 cout << "请输入新的线数：" << endl;
                 cin >> lidar_parameter[i].line_num;
                 cout << "修改成功！Lidar"<<lidar_parameter[i].id<<"的线数更新为：" << lidar_parameter[i].line_num << endl;
@@ -597,6 +609,7 @@ public:
             case 3:{
                 bool flag = true;
                 int view_angle;
+                cout<<"原视场角："<<lidar_parameter[i].view_angle<<endl;
                 while(flag){
                     cout << "请输入新的视场角(range：0-45)：";
                     try{
@@ -614,6 +627,7 @@ public:
                 break;
             }
             case 4:
+                cout << "原旋转频率：" << lidar_parameter[i].rotate_rate << endl;
                 cout << "请输入新的旋转频率：" << endl;
                 cin >> lidar_parameter[i].rotate_rate;
                 cout << "修改成功！Lidar"<<lidar_parameter[i].id<<"的旋转频率更新为：" << lidar_parameter[i].rotate_rate << endl;
@@ -621,6 +635,7 @@ public:
             case 5:{
                 bool flag = true;
                 int horizontal_view_angle;
+                cout<<"原水平视场角："<<lidar_parameter[i].horizontal_view_angle<<endl;
                 while(flag){
                     cout << "请输入新的水平视场角(range：0-360)：";
                     try{
@@ -846,11 +861,13 @@ public:
         cin >> choice;
         switch(choice){
             case 1:
+                cout << "原名称：" << radar_parameter[i].name << endl;
                 cout << "请输入新的名称：" << endl;
                 cin >> radar_parameter[i].name;
                 cout << "修改成功！Radar "<<radar_parameter[i].id<<"的名称更新为"<<radar_parameter[i].name<<endl;
                 break;
             case 2:
+                cout << "原位置：" << radar_parameter[i].x << "," << radar_parameter[i].y << "," << radar_parameter[i].z << endl;
                 cout << "请输入新的位置：" << endl;
                 cin >> radar_parameter[i].x >> radar_parameter[i].y >> radar_parameter[i].z;
                 cout << "修改成功！Radar "<<radar_parameter[i].id<<"的位置更新为"<<radar_parameter[i].x<<","<<radar_parameter[i].y<<","<<radar_parameter[i].z<<endl;
@@ -867,11 +884,13 @@ public:
                 cin >> parameter_id;
                 switch(parameter_id){
                     case 1:
+                        cout << "原姿态角：" << radar_parameter[i].roll << "," << radar_parameter[i].pitch << "," << radar_parameter[i].yaw << endl;
                         cout << "请输入新的姿态角：" << endl;
                         cin >> radar_parameter[i].roll >> radar_parameter[i].pitch >> radar_parameter[i].yaw;
                         cout << "修改成功！Radar "<<radar_parameter[i].id<<"的姿态角更新为"<<radar_parameter[i].roll<<","<<radar_parameter[i].pitch<<","<<radar_parameter[i].yaw<<endl;
                         break;
                     case 2:
+                        cout << "原分辨率：" << radar_parameter[i].resolution[0] << "," << radar_parameter[i].resolution[1] << endl;
                         cout << "请输入新的分辨率：" << endl;
                         cin >> radar_parameter[i].resolution[0] >> radar_parameter[i].resolution[1];
                         cout << "修改成功！Radar "<<radar_parameter[i].id<<"的分辨率更新为"<<radar_parameter[i].resolution[0]<<","<<radar_parameter[i].resolution[1]<<endl;
@@ -879,6 +898,7 @@ public:
                     case 3:{
                         bool flag = true;
                         int view_angle;
+                        cout << "原视场角：" << radar_parameter[i].view_angle << endl;
                         while(flag){
                             cout << "请输入新的视场角(range：0-60)：";
                             try{
@@ -896,11 +916,13 @@ public:
                         break;
                     }
                     case 4:
+                        cout << "原速度精度：" << radar_parameter[i].speed_accuracy[0] << "," << radar_parameter[i].speed_accuracy[1] << endl;
                         cout << "请输入新的速度精度：" << endl;
                         cin >> radar_parameter[i].speed_accuracy[0] >> radar_parameter[i].speed_accuracy[1];
                         cout << "修改成功！Radar "<<radar_parameter[i].id<<"的速度精度更新为"<<radar_parameter[i].speed_accuracy[0]<<","<<radar_parameter[i].speed_accuracy[1]<<endl;
                         break;
                     case 5:
+                        cout << "原检测模式：" << radar_parameter[i].detect_mode << endl;
                         cout << "请输入新的检测模式：" << endl;
                         cin >> radar_parameter[i].detect_mode;
                         cout << "修改成功！Radar "<<radar_parameter[i].id<<"的检测模式更新为"<<radar_parameter[i].detect_mode<<endl;
