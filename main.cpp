@@ -22,7 +22,7 @@ using namespace std;
  * @affiliation 同济大学
  * @author 1951710 郑焯文
  * @date Jun 2022
- * @version 1.0
+ * @version 1.1
  ******************************************************************************/
 
 // class CameraParameter
@@ -1624,7 +1624,7 @@ void ui_initialize(){
     cout<<"| 2.从输入添加传感器                     |"<<endl;
     cout<<"| 3.列表显示所有传感器                    |"<<endl;
     cout<<"| 4.显示所有在线传感器                    |"<<endl;
-    cout<<"| 5.查找指定传感器参数                    |"<<endl;
+    cout<<"| 5.查找指定传感器                       |"<<endl;
     cout<<"| 6.删除指定传感器                       |"<<endl;
     cout<<"| 7.指定传感器参数统计                    |"<<endl;
     cout<<"| 8.传感器参数分类统计                    |"<<endl;
@@ -1643,7 +1643,6 @@ void fast_test_api(SensorManager sensor_manager){
 }
 
 int main() {
-    ui_initialize();
     SensorManager sensor_manager("Default-Car");
     //fast_test_api(sensor_manager);//测试用
     while (1) {

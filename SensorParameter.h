@@ -37,6 +37,7 @@ public:
         this->pitch = sensor_parameter.pitch;
         this->yaw = sensor_parameter.yaw;
     }
+    ~SensorParameter(){}
     // 赋值运算符重载函数
     SensorParameter& operator=(const SensorParameter& sensor_parameter)
     {
