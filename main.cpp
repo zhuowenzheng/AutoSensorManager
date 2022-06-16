@@ -2,6 +2,7 @@
 #include <string>
 #include <fstream>
 #include <map>
+#include <sstream>
 #include "Sensor.cpp"
 #include "SensorParameter.cpp"
 #include "sensorErrorException.cpp"
@@ -225,8 +226,10 @@ public:
         int num = 0;
         for(int i=0;i<num_camera;i++)
         {
-            if(is_effective[i]==1)
+            //cout<<"num_camera:"<<num_camera<<endl;
+            if(is_effective[camera_parameter[i].id]==1)
             {
+                //cout<<"reached "<<i<<endl;
                 num++;
             }
         }
@@ -359,7 +362,7 @@ public:
         int num = 0;
         for(int i=0;i<num_lidar;i++)
         {
-            if(is_effective[i]==1)
+            if(is_effective[lidar_parameter[i].id]==1)
             {
                 num++;
             }
@@ -484,7 +487,7 @@ public:
         int num = 0;
         for(int i=0;i<num_radar;i++)
         {
-            if(is_effective[i]==1)
+            if(is_effective[radar_parameter[i].id]==1)
             {
                 num++;
             }
@@ -550,7 +553,7 @@ public:
     ~SensorManager(){}
     // 文件导入camera
 
-    fstream & seek_to_line(fstream & in, int line)
+    ifstream & seek_to_line(ifstream & in, int line)
     //将打开的文件in，定位到line行。
     {
         int i;
@@ -562,29 +565,73 @@ public:
         }
         return in;
     }
-    void add_camera_from_file(string file_path){
-        fstream file(file_path);
+    void add_camera_from_file(const string& file_path){
+        ifstream file;
+        string line;
+        file.open(file_path, ios::in);
         if(!file.is_open()){
             cout<<"\033[0;31m 文件打开失败 \033[0m"<<endl;
             return;
         }
-        file.open(file_path, ios::in);
-        seek_to_line(file, 2);
-        while(!file.eof()){
-            CameraParameter camera;
-            file>>camera;
-            cout<<camera;
-            camera_list.add_parameter(camera);
+        cout<<"\033[0;32m 文件读取成功 \033[0m"<<endl;
+        seek_to_line(file,2);
+        //从文件中读取数据，放入temp_camera中，一行数据对应一个CameraParameter对象，数据成员之间以空格分隔
+        while(getline(file,line)){
+            CameraParameter temp_camera;
+            istringstream iss(line);
+            iss>>temp_camera;
+            sensor_num++;
+            cout<<temp_camera<<endl;
+            camera_list.add_parameter(temp_camera);
         }
         file.close();
+        cout<<"\033[0;32m 文件关闭 \033[0m"<<endl;
     }
     //文件导入lidar
     void add_lidar_from_file(string file_path){
-
+        ifstream file;
+        string line;
+        file.open(file_path, ios::in);
+        if(!file.is_open()){
+            cout<<"\033[0;31m 文件打开失败 \033[0m"<<endl;
+            return;
+        }
+        cout<<"\033[0;32m 文件读取成功 \033[0m"<<endl;
+        seek_to_line(file,2);
+        //从文件中读取数据，放入temp_lidar中，一行数据对应一个LidarParameter对象，数据成员之间以空格分隔
+        while(getline(file,line)){
+            LidarParameter temp_lidar;
+            istringstream iss(line);
+            iss>>temp_lidar;
+            sensor_num++;
+            cout<<temp_lidar<<endl;
+            lidar_list.add_parameter(temp_lidar);
+        }
+        file.close();
+        cout<<"\033[0;32m 文件关闭 \033[0m"<<endl;
     }
     // 文件导入radar
     void add_radar_from_file(string file_path){
-
+        ifstream file;
+        string line;
+        file.open(file_path, ios::in);
+        if(!file.is_open()){
+            cout<<"\033[0;31m 文件打开失败 \033[0m"<<endl;
+            return;
+        }
+        cout<<"\033[0;32m 文件读取成功 \033[0m"<<endl;
+        seek_to_line(file,2);
+        //从文件中读取数据，放入temp_radar中，一行数据对应一个RadarParameter对象，数据成员之间以空格分隔
+        while(getline(file,line)){
+            RadarParameter temp_radar;
+            istringstream iss(line);
+            iss>>temp_radar;
+            sensor_num++;
+            cout<<temp_radar<<endl;
+            radar_list.add_parameter(temp_radar);
+        }
+        file.close();
+        cout<<"\033[0;32m 文件关闭 \033[0m"<<endl;
     }
 
     void add_sensor_from_istream()
@@ -743,7 +790,7 @@ public:
             {
                 // 删除camera_list中的传感器
                 string name = camera_list.camera_parameter[i].name;
-                camera_list.is_effective[i] = -1;
+                camera_list.is_effective[camera_list.camera_parameter[i].id] = -1;
                 camera_list.camera_parameter[i].id = -1;
                 camera_list.camera_parameter[i].name = "";
                 camera_list.camera_parameter[i].x = 0;
@@ -768,7 +815,7 @@ public:
             if(lidar_list.lidar_parameter[i].id==id){
                 // 删除lidar_list中的传感器
                 string name = lidar_list.lidar_parameter[i].name;
-                lidar_list.is_effective[i] = -1;
+                lidar_list.is_effective[lidar_list.lidar_parameter[i].id] = -1;
                 lidar_list.lidar_parameter[i].id = -1;
                 lidar_list.lidar_parameter[i].name = "";
                 lidar_list.lidar_parameter[i].x = 0;
@@ -793,7 +840,7 @@ public:
             if(radar_list.radar_parameter[i].id==id){
                 // 删除radar_list中的传感器
                 string name = radar_list.radar_parameter[i].name;
-                radar_list.is_effective[i] = -1;//-1表示deleted
+                radar_list.is_effective[radar_list.radar_parameter[i].id] = -1;//-1表示deleted
                 radar_list.radar_parameter[i].id = -1;
                 radar_list.radar_parameter[i].name = "";
                 radar_list.radar_parameter[i].x = 0;
@@ -944,8 +991,8 @@ public:
         fstream outfile;
         outfile.open(file_directory_prefix+"camera.txt", ios::out);
         // 写入camera参数
-        outfile << carID << endl;
-        outfile << camera_list.get_sensor_num() << endl;
+        outfile << "#" << carID << endl;
+        outfile << "##"<< camera_list.get_sensor_num() << endl;
         for(int i = 0; i < camera_list.get_sensor_num(); ){
             // Camera参数继承传感器参数基类，分辨率（integer, integer），帧率（integer），视场角(integer: 0-180)，畸变参数（float point[5]），色彩位数（integer）
             if(camera_list.is_effective[camera_list.camera_parameter[i].id]){
@@ -958,8 +1005,8 @@ public:
         // 写入lidar参数
         // 继承SensorParameter，参数：线数（integer），视场角（integer: 0-45），旋转频率（integer），水平视场角（integer：0-360）
         outfile.open(file_directory_prefix+"lidar.txt",ios::out);
-        outfile << carID << endl;
-        outfile << lidar_list.get_sensor_num() << endl;
+        outfile << "#" << carID << endl;
+        outfile << "##"<< lidar_list.get_sensor_num() << endl;
         for(int i = 0; i < lidar_list.get_sensor_num(); ) {
             if(lidar_list.is_effective[lidar_list.lidar_parameter[i].id]){
                 outfile << lidar_list.lidar_parameter[i];
@@ -971,8 +1018,8 @@ public:
         // 写入radar参数
         // 继承SensorParameter，参数：分辨率（float point），视场角（integer：0-60），速度精度（float point），探测模式（string）
         outfile.open(file_directory_prefix+"radar.txt",ios::out);
-        outfile << carID << endl;
-        outfile << radar_list.get_sensor_num() << endl;
+        outfile <<"#" << carID << endl;
+        outfile <<"##"<< radar_list.get_sensor_num() << endl;
         for(int i = 0; i < radar_list.get_sensor_num(); ) {
             if(radar_list.is_effective[radar_list.radar_parameter[i].id]){
                 outfile << radar_list.radar_parameter[i];
@@ -1053,15 +1100,23 @@ int main() {
                         case 2: {
                             cout << "请输入要添加的Lidar参数文件路径：" << endl;
                             string file_directory_lidar;
+                            cin.clear();
+                            cin.ignore();
+                            cin.sync();
                             cin >> file_directory_lidar;
-                            //sensor_manager.add_lidar_from_file(file_directory_lidar);
+                            sensor_manager.add_lidar_from_file(file_directory_lidar);
+                            type = 4;
                             break;
                         }
                         case 3: {
                             cout << "请输入要添加的Radar参数文件路径：" << endl;
                             string file_directory_radar;
+                            cin.clear();
+                            cin.ignore();
+                            cin.sync();
                             cin >> file_directory_radar;
-                            //sensor_manager.add_radar_from_file(file_directory_radar);
+                            sensor_manager.add_radar_from_file(file_directory_radar);
+                            type = 4;
                             break;
                         }
                         case 4: {
