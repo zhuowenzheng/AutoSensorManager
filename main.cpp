@@ -3,6 +3,7 @@
 #include <fstream>
 #include <map>
 #include <sstream>
+#include <list>
 #include "Sensor.cpp"
 #include "SensorParameter.cpp"
 #include "sensorErrorException.cpp"
@@ -269,9 +270,118 @@ public:
         }
     }
 
+    void modify_parameter(int i) {
+        // 选择需要修改的内容
+        int choice;
+        cout << "请选择需要修改的内容：" << endl;
+        cout << "1.名称";
+        cout << "2.位置";
+        cout << "3.参数";
+        cout << "4.在线状态";
+        cout << "5.退出"<<endl;
+        cin >> choice;
+        switch (choice) {
+            case 1:
+                cout << "请输入新的名称：" << endl;
+                cin >> camera_parameter[i].name;
+                cout << "修改成功！Camera " << camera_parameter[i].id << "的名称更新为" << camera_parameter[i].name << "!" << endl;
+                break;
+            case 2:
+                cout << "请输入新的位置：" << endl;
+                cin >> camera_parameter[i].x >> camera_parameter[i].y >> camera_parameter[i].z;
+                cout << "修改成功！Camera " << camera_parameter[i].id << "的位置更新为" << camera_parameter[i].x << ","
+                     << camera_parameter[i].y << "," << camera_parameter[i].z << "!" << endl;
+                break;
+            case 3:{
+                cout << " 请输入想要修改的参数编号：" << endl;
+                cout << " 1.姿态角(roll,pitch,yaw)" << endl;
+                cout << " 2.分辨率(resolution_x,resolution_y)" << endl;
+                cout << " 3.帧率(frame_rate)" << endl;
+                cout << " 4.视场角(view_angle)" << endl;
+                cout << " 5.畸变参数(distortion_parameter)" << endl;
+                cout << " 6.颜色位数(color_bits)" << endl;
+                cout << " 7.退出" << endl;
+                int parameter_id;
+                cin >> parameter_id;
+                switch (parameter_id) {
+                    case 1:
+                        cout << " 请输入新的姿态角：" << endl;
+                        cin >> camera_parameter[i].roll >> camera_parameter[i].pitch >> camera_parameter[i].yaw;
+                        cout << " 修改成功！Camera " << camera_parameter[i].id << "的姿态角更新为" << camera_parameter[i].roll
+                             << "," << camera_parameter[i].pitch << "," << camera_parameter[i].yaw << "!" << endl;
+                        break;
+                    case 2:
+                        cout << " 请输入新的分辨率：" << endl;
+                        cin >> camera_parameter[i].resolution_x >> camera_parameter[i].resolution_y;
+                        cout << " 修改成功！Camera " << camera_parameter[i].id << "的分辨率更新为"
+                             << camera_parameter[i].resolution_x << "," << camera_parameter[i].resolution_y << "!"
+                             << endl;
+                        break;
+                    case 3:
+                        cout << " 请输入新的帧率：" << endl;
+                        cin >> camera_parameter[i].frame_rate;
+                        cout << " 修改成功！Camera " << camera_parameter[i].id << "的帧率更新为" << camera_parameter[i].frame_rate
+                             << "!" << endl;
+                        break;
+                    case 4:
+                        cout << " 请输入新的视场角：" << endl;
+                        cin >> camera_parameter[i].view_angle;
+                        cout << " 修改成功！Camera " << camera_parameter[i].id << "的视场角更新为" << camera_parameter[i].view_angle
+                             << "!" << endl;
+                        break;
+                    case 5:
+                        cout << " 请输入新的畸变参数：" << endl;
+                        for (float &j: camera_parameter[i].distortion_parameter)
+                            cin >> j;
+                        cout << " 修改成功！Camera " << camera_parameter[i].id << "的畸变参数更新为"
+                             << camera_parameter[i].distortion_parameter << "!" << endl;
+                        break;
+                    case 6:
+                        cout << " 请输入新的颜色位数：" << endl;
+                        cin >> camera_parameter[i].color_bits;
+                        cout << " 修改成功！Camera " << camera_parameter[i].id << "的颜色位数更新为"
+                             << camera_parameter[i].color_bits << "!" << endl;
+                        break;
+                    case 7:
+                        break;
+                }
+                break;
+            }
+            case 4:{
+              //判断当前在线状态，若在线，则设置为不在线，若不在线，则设置为在线
+              string online_status = is_effective[camera_parameter[i].id]==1?"在线":"不在线";
+              cout<<"当前在线状态为："<<online_status<<"，是否改变状态？(y/n)"<<endl;
+              char c;
+              cin>>c;
+              if(c=='y'){
+                  if (online_status == "在线") {
+                      is_effective[camera_parameter[i].id] = 0;
+                      cout << "Camera " << camera_parameter[i].id << "的在线状态更新为不在线!" << endl;
+                  } else {
+                      is_effective[camera_parameter[i].id] = 1;
+                      cout << "Camera " << camera_parameter[i].id << "的在线状态更新为在线!" << endl;
+                  }
+              } else if(c=='n'){
+                  cout<<"[INFO] 放弃更改！"<<endl;
+                  break;
+              } else {
+                  cout<<"[ERROR] 输入错误！"<<endl;
+                  break;
+              }
+              break;
+            }
+            case 5:
+                break;
+            default:
+                cout << "[ERROR] 输入错误！" << endl;
+                break;
+        }
+    }
 
     CameraParameter *camera_parameter = nullptr;
     map<int,int> is_effective;//-1:deleted 0:offline 1:online
+
+
 private:
     CameraParameter current_parameter;
     int sensor_parameter_flag;
@@ -392,6 +502,101 @@ public:
                 cout << lidar_parameter[i].id<<"\t"<<lidar_parameter[i].name << "\t" << lidar_parameter[i].x << "," << lidar_parameter[i].y << "," << lidar_parameter[i].z << endl;
                 i++;
             }
+        }
+    }
+    void modify_parameter(int i){
+        // 选择需要修改的内容
+        int choice;
+        cout << "请选择需要修改的内容：" << endl;
+        cout << "1.名称";
+        cout << "2.位置";
+        cout << "3.参数";
+        cout << "4.在线状态";
+        cout << "5.退出"<<endl;
+        cin >> choice;
+        switch (choice)
+        {
+        case 1:
+            cout << "请输入新的名称：" << endl;
+            cin >> lidar_parameter[i].name;
+            cout << "修改成功！Lidar"<<lidar_parameter[i].id<<"的名称更新为：" << lidar_parameter[i].name << endl;
+            break;
+        case 2:
+            cout << "请输入新的位置：" << endl;
+            cin >> lidar_parameter[i].x >> lidar_parameter[i].y >> lidar_parameter[i].z;
+            cout << "修改成功！Lidar"<<lidar_parameter[i].id<<"的位置更新为：" << lidar_parameter[i].x << "," << lidar_parameter[i].y << "," << lidar_parameter[i].z << endl;
+            break;
+        case 3:{
+            cout << " 请输入想要修改的参数编号：" << endl;
+            cout << " 1.姿态角(roll,pitch,yaw)" << endl;
+            cout << " 2.线数(line_num)" << endl;
+            cout << " 3.视场角(view_angle)" << endl;
+            cout << " 4.旋转频率(rotate_rate)" << endl;
+            cout << " 5.水平视角(horizontal_view_angle)" << endl;
+            cout << " 6.退出" << endl;
+            int parameter_id;
+            cin >> parameter_id;
+            switch (parameter_id)
+            {
+            case 1:
+                cout << "请输入新的姿态角：" << endl;
+                cin >> lidar_parameter[i].roll >> lidar_parameter[i].pitch >> lidar_parameter[i].yaw;
+                cout << "修改成功！Lidar"<<lidar_parameter[i].id<<"的姿态角更新为：" << lidar_parameter[i].roll << "," << lidar_parameter[i].pitch << "," << lidar_parameter[i].yaw << endl;
+                break;
+            case 2:
+                cout << "请输入新的线数：" << endl;
+                cin >> lidar_parameter[i].line_num;
+                cout << "修改成功！Lidar"<<lidar_parameter[i].id<<"的线数更新为：" << lidar_parameter[i].line_num << endl;
+                break;
+            case 3:
+                cout << "请输入新的视场角：" << endl;
+                cin >> lidar_parameter[i].view_angle;
+                cout << "修改成功！Lidar"<<lidar_parameter[i].id<<"的视场角更新为：" << lidar_parameter[i].view_angle << endl;
+                break;
+            case 4:
+                cout << "请输入新的旋转频率：" << endl;
+                cin >> lidar_parameter[i].rotate_rate;
+                cout << "修改成功！Lidar"<<lidar_parameter[i].id<<"的旋转频率更新为：" << lidar_parameter[i].rotate_rate << endl;
+                break;
+            case 5:
+                cout << "请输入新的水平视角：" << endl;
+                cin >> lidar_parameter[i].horizontal_view_angle;
+                cout << "修改成功！Lidar"<<lidar_parameter[i].id<<"的水平视角更新为：" << lidar_parameter[i].horizontal_view_angle << endl;
+                break;
+            case 6:
+                break;
+            default:
+                cout << "[ERROR] 输入错误！" << endl;
+                break;
+            }
+            break;
+        }
+        case 4:{
+            string online_status = is_effective[lidar_parameter[i].id]==1?"在线":"不在线";
+            cout<<"当前在线状态为："<<online_status<<"，是否改变状态？(y/n)"<<endl;
+            char c;
+            cin>>c;
+            if(c=='y'){
+                if (online_status == "在线") {
+                    is_effective[lidar_parameter[i].id] = 0;
+                    cout << "Lidar " << lidar_parameter[i].id << "的在线状态更新为不在线!" << endl;
+                } else {
+                    is_effective[lidar_parameter[i].id] = 1;
+                    cout << "Lidar " << lidar_parameter[i].id << "的在线状态更新为在线!" << endl;
+                }
+            }else if(c=='n'){
+                cout<<"[INFO] 放弃更改！"<<endl;
+                break;
+            }else {
+                cout<<"[ERROR] 输入错误！"<<endl;
+                break;}
+            break;
+        }
+        case 5:
+            break;
+        default:
+            cout << "[ERROR] 输入错误！" << endl;
+            break;
         }
     }
 
@@ -515,12 +720,103 @@ public:
         cout<<"\033[0;34m Radar编号\tRadar名称\tRadar位置 \033[0m"<<endl;
         for(int i = 0;i<num_radar;){
             if(is_effective[radar_parameter[i].id]==1){
-                cout<<radar_parameter[i].id<<"\t"<<radar_parameter[i].name<<"\t"<<radar_parameter[i].x<<"\t"<<radar_parameter[i].y<<"\t"<<radar_parameter[i].z<<endl;
+                cout<<radar_parameter[i].id<<"\t"<<radar_parameter[i].name<<"\t"<<radar_parameter[i].x<<","<<radar_parameter[i].y<<","<<radar_parameter[i].z<<endl;
                 i++;
             }
         }
     }
 
+    void modify_parameter(int i){
+        int choice;
+        cout << "请选择需要修改的内容：" << endl;
+        cout << "1.名称";
+        cout << "2.位置";
+        cout << "3.参数";
+        cout << "4.在线状态";
+        cout << "5.退出"<<endl;
+        cin >> choice;
+        switch(choice){
+            case 1:
+                cout << "请输入新的名称：" << endl;
+                cin >> radar_parameter[i].name;
+                cout << "修改成功！Radar "<<radar_parameter[i].id<<"的名称更新为"<<radar_parameter[i].name<<endl;
+                break;
+            case 2:
+                cout << "请输入新的位置：" << endl;
+                cin >> radar_parameter[i].x >> radar_parameter[i].y >> radar_parameter[i].z;
+                cout << "修改成功！Radar "<<radar_parameter[i].id<<"的位置更新为"<<radar_parameter[i].x<<","<<radar_parameter[i].y<<","<<radar_parameter[i].z<<endl;
+                break;
+            case 3:
+                cout << " 请输入想要修改的参数编号：" << endl;
+                cout << " 1.姿态角(roll,pitch,yaw)" << endl;
+                cout << " 2.分辨率(x,y)" << endl;
+                cout << " 3.视场角(view_angle)" << endl;
+                cout << " 4.速度精度(x,y)" << endl;
+                cout << " 5.检测模式(detect_mode)" << endl;
+                cout << " 6.退出" << endl;
+                int parameter_id;
+                cin >> parameter_id;
+                switch(parameter_id){
+                    case 1:
+                        cout << "请输入新的姿态角：" << endl;
+                        cin >> radar_parameter[i].roll >> radar_parameter[i].pitch >> radar_parameter[i].yaw;
+                        cout << "修改成功！Radar "<<radar_parameter[i].id<<"的姿态角更新为"<<radar_parameter[i].roll<<","<<radar_parameter[i].pitch<<","<<radar_parameter[i].yaw<<endl;
+                        break;
+                    case 2:
+                        cout << "请输入新的分辨率：" << endl;
+                        cin >> radar_parameter[i].resolution[0] >> radar_parameter[i].resolution[1];
+                        cout << "修改成功！Radar "<<radar_parameter[i].id<<"的分辨率更新为"<<radar_parameter[i].resolution[0]<<","<<radar_parameter[i].resolution[1]<<endl;
+                        break;
+                    case 3:
+                        cout << "请输入新的视场角：" << endl;
+                        cin >> radar_parameter[i].view_angle;
+                        cout << "修改成功！Radar "<<radar_parameter[i].id<<"的视场角更新为"<<radar_parameter[i].view_angle<<endl;
+                        break;
+                    case 4:
+                        cout << "请输入新的速度精度：" << endl;
+                        cin >> radar_parameter[i].speed_accuracy[0] >> radar_parameter[i].speed_accuracy[1];
+                        cout << "修改成功！Radar "<<radar_parameter[i].id<<"的速度精度更新为"<<radar_parameter[i].speed_accuracy[0]<<","<<radar_parameter[i].speed_accuracy[1]<<endl;
+                        break;
+                    case 5:
+                        cout << "请输入新的检测模式：" << endl;
+                        cin >> radar_parameter[i].detect_mode;
+                        cout << "修改成功！Radar "<<radar_parameter[i].id<<"的检测模式更新为"<<radar_parameter[i].detect_mode<<endl;
+                        break;
+                    case 6:
+                        break;
+                    default:
+                        cout << "[ERROR] 输入错误！" << endl;
+                        break;
+                }
+                break;
+            case 5:{
+                string online_status = is_effective[radar_parameter[i].id]==1?"在线":"不在线";
+                cout<<"当前在线状态为："<<online_status<<"，是否改变状态？(y/n)"<<endl;
+                char c;
+                cin>>c;
+                if(c=='y'){
+                    if (online_status == "在线") {
+                        is_effective[radar_parameter[i].id] = 0;
+                        cout << "Radar " << radar_parameter[i].id << "的在线状态更新为不在线!" << endl;
+                    } else {
+                        is_effective[radar_parameter[i].id] = 1;
+                        cout << "Radar " << radar_parameter[i].id << "的在线状态更新为在线!" << endl;
+                    }
+                }else if(c=='n'){
+                    cout<<"[INFO] 放弃更改！"<<endl;
+                    break;
+                }else {
+                    cout<<"[ERROR] 输入错误！"<<endl;
+                    break;}
+                break;
+            }
+            case 6:
+                break;
+            default:
+                cout << "[ERROR] 输入错误！" << endl;
+                break;
+        }
+    }
 
     RadarParameter *radar_parameter = nullptr;
     map<int,int> is_effective; //标志，由于指针在Parameter上，故用map实现
@@ -744,41 +1040,34 @@ public:
     int find_sensor(int id,string* sensor_type)
     {
         // 遍历camera_list、lidar_list、radar_list，查找id
-        int condition;
-        switch (condition) {
-            case 1:
-                //camera
-                for(int i=0;i<camera_list.get_sensor_num();i++)
-                {
-                    if(camera_list.camera_parameter[i].id==id)
-                    {
-                        *sensor_type = "camera";
-                        return i;
-                    }
-                }
-                break;
-            case 2:
-                //lidar
-                for(int i=0;i<lidar_list.get_sensor_num();i++)
-                {
-                    if(lidar_list.lidar_parameter[i].id==id)
-                    {
-                        *sensor_type = "lidar";
-                        return i;
-                    }
-                }
-                break;
-            case 3:
-                //radar
-                for(int i=0;i<radar_list.get_sensor_num();i++)
-                {
-                    if(radar_list.radar_parameter[i].id==id)
-                    {
-                        *sensor_type = "radar";
-                        return i;
-                    }
-                }
-                break;
+        // id 具有唯一性
+
+        //camera
+        for(int i=0;i<camera_list.get_sensor_num();i++)
+        {
+            if(camera_list.camera_parameter[i].id==id)
+            {
+                *sensor_type = "camera";
+                return i;
+            }
+        }
+
+        //lidar
+        for(int i=0;i<lidar_list.get_sensor_num();i++)
+        {
+            if(lidar_list.lidar_parameter[i].id==id)
+            {
+                *sensor_type = "lidar";
+                return i;
+            }
+        }
+        for(int i=0;i<radar_list.get_sensor_num();i++)
+        {
+            if(radar_list.radar_parameter[i].id==id)
+            {
+                *sensor_type = "radar";
+                return i;
+            }
         }
         return -1;
     }
@@ -917,7 +1206,8 @@ public:
         int lidar_num = 0;
         int radar_num = 0;
         for(int i =0;i<count;i++){
-            find_sensor(sensor_id[i],&types[i]);
+            find_sensor(sensor_id[i],(types+i));
+            cout<<"传感器"<<sensor_id[i]<<"："<<types[i]<<endl;
             if(types[i]=="camera"){
                 camera_num++;
             }
@@ -936,7 +1226,7 @@ public:
                 if(types[i]=="camera")
                 {
                 cout<<camera_list.camera_parameter[i].id<<"\t"<<camera_list.camera_parameter[i].name<<"\t";
-                cout<<"("<<camera_list.camera_parameter[i].x<<","<<camera_list.camera_parameter[i].y<<","<<camera_list.camera_parameter[i].z<<")"<<endl<<endl;
+                cout<<"("<<camera_list.camera_parameter[i].x<<","<<camera_list.camera_parameter[i].y<<","<<camera_list.camera_parameter[i].z<<")"<<endl;
                 }
             }
         }
@@ -1019,7 +1309,7 @@ public:
             }
         }
         outfile.close();
-        cout<<"[INFO] 保存Camera参数成功！"<<endl;
+        cout<<"[INFO] 保存Camera参数成功！文件路径："<< file_directory_prefix+"camera.txt" <<endl;
         // 写入lidar参数
         // 继承SensorParameter，参数：线数（integer），视场角（integer: 0-45），旋转频率（integer），水平视场角（integer：0-360）
         outfile.open(file_directory_prefix+"lidar.txt",ios::out);
@@ -1032,7 +1322,7 @@ public:
             }
         }
         outfile.close();
-        cout<<"[INFO] 保存Lidar参数成功！"<<endl;
+        cout<<"[INFO] 保存Lidar参数成功！文件路径："<< file_directory_prefix+"lidar.txt" <<endl;
         // 写入radar参数
         // 继承SensorParameter，参数：分辨率（float point），视场角（integer：0-60），速度精度（float point），探测模式（string）
         outfile.open(file_directory_prefix+"radar.txt",ios::out);
@@ -1045,11 +1335,37 @@ public:
             }
         }
         outfile.close();
-        cout<<"[INFO] 保存Radar参数成功！"<<endl;
+        cout<<"[INFO] 保存Radar参数成功！文件路径："<< file_directory_prefix+"radar.txt" <<endl;
     }
 
+    // 修改传感器参数，需将原有参数显示出来，然后选择修改输入新的参数
+    void modify_sensor_parameter(int sensor_id) {
+        cout << "-----------------修改传感器参数-----------------" << endl;
+        string sensor_type;
+        int sensor_serial_num = find_sensor(sensor_id, &sensor_type);
+        if(sensor_serial_num == -1) {
+            cout << "[ERROR] 传感器ID不存在！" << endl;
+            return;
+        }
+        if(sensor_type == "Camera") {
+            camera_list.modify_parameter(sensor_serial_num);
+        } else if(sensor_type == "Lidar") {
+            lidar_list.modify_parameter(sensor_serial_num);
+        } else if(sensor_type == "Radar") {
+            radar_list.modify_parameter(sensor_serial_num);
+        }
+    }
     string get_Car_ID(){
         return Car_ID;
+    }
+
+    void sort_sensor(int sensor_type_id, int parameter_id) {
+        /**
+         * @param sensor_type_id: 传感器类型ID
+         * @param parameter_id: 传感器参数ID
+         * @brief 将传感器类型ID和传感器参数ID作为过滤条件，过滤掉不符合条件的传感器
+         * */
+
     }
 
 private:
@@ -1075,9 +1391,12 @@ void ui_initialize(){
     cout<<"| 4.显示所有在线传感器                    |"<<endl;
     cout<<"| 5.查找指定传感器参数                    |"<<endl;
     cout<<"| 6.删除指定传感器                       |"<<endl;
-    cout<<"| 7.传感器参数统计                       |"<<endl;
-    cout<<"| 8.保存传感器参数到文件                  |"<<endl;
-    cout<<"| 9.退出系统                            |"<<endl;
+    cout<<"| 7.指定传感器参数统计                    |"<<endl;
+    cout<<"| 8.传感器参数分类统计                    |"<<endl;
+    cout<<"| 9.保存传感器参数到文件                  |"<<endl;
+    cout<<"| 10.修改传感器参数                      |"<<endl;
+    cout<<"| 11.根据参数对传感器筛选排序              |"<<endl;
+    cout<<"| 12.退出系统                           |"<<endl;
     cout<<"---------------------------------------"<<endl;
 }
 
@@ -1174,6 +1493,16 @@ int main() {
                 string sensor_type;
                 cin>>sensor_id;
                 sensor_manager.find_sensor(sensor_id,&sensor_type);
+                if(sensor_type=="Camera")
+                    cout<<"查找到传感器"<<sensor_id<<":Camera"<<endl;
+                else if(sensor_type=="Lidar")
+                    cout<<"查找到传感器"<<sensor_id<<":Lidar"<<endl;
+                else if(sensor_type=="Radar"){
+                    cout<<"查找到传感器"<<sensor_id<<":Radar"<<endl;
+                }
+                else{
+                    cout<<"[ERROR] 查找失败，该传感器不存在"<<endl;
+                }
                 break;
             }
             case 6:{
@@ -1206,14 +1535,50 @@ int main() {
                 break;
             }
             case 8:{
+                //按种类显示统计传感器参数详情
+                sensor_manager.statistic_sensor_parameter();
+                break;
+            }
+            case 9:{
                 sensor_manager.save_parameter_tofile("/Users/alexzheng/Desktop",sensor_manager.get_Car_ID());
                 break;
             }
+            case 10:{
+                //修改传感器参数
+                cout<<"请输入要修改的传感器id："<<endl;
+                int sensor_to_change_id;
+                cin>>sensor_to_change_id;
+                string sensor_to_change_type;
+                sensor_manager.modify_sensor_parameter(sensor_to_change_id);
+                break;
+            }
+            case 11:{
+                //根据参数对传感器筛选排序
+                cout<<"请输入要筛选的传感器种类："<<endl;
+                int sensor_type,sensor_parameter;
+                cin>>sensor_type;
+                cout<<"请输入要筛选的传感器参数："<<endl;
+                cin>>sensor_parameter;
+                sensor_manager.sort_sensor(sensor_type,sensor_parameter);
+                break;
+            }
 
-            case 9: {
-                cout << "\033[0;33m Developer:alexzheng@tongji.edu.cn; AlexZ 2022. All rights reserved. \033[0m" << endl;
-                cout << "\033[0;33m [INFO] 感谢使用智能汽车传感器管理系统，您已退出！\033[0m" << endl;
-                exit(0);
+            case 12: {
+                // 确认退出
+                cout << "\033[0;33m 确认退出？如新加入的参数未保存您可能丢失参数数据，请确认保存传感器参数后再退出！(y/n) :\033[0m";
+                char confirm;
+                cin >> confirm;
+                if (confirm == 'y') {
+                    cout << "\033[0;33m [INFO] 感谢使用智能汽车传感器管理系统，您已退出！\033[0m" << endl;
+                    cout << "\033[0;33m Developer:alexzheng@tongji.edu.cn; Alex Zheng 2022. All rights reserved. \033[0m" << endl;
+                    exit(0);
+                } else if (confirm == 'n') {
+                    cout << "\033[0;33m [INFO] 取消退出 \033[0m" << endl;
+                    break;
+                } else {
+                    cout << "\033[0;33m [ERROR] 输入错误，请重新输入 \033[0m" << endl;
+                    break;
+                }
             }
         }
     }
