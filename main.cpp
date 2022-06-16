@@ -130,8 +130,8 @@ public:
 // 对数据的操作应主要包括：添加、显示以及当前标志等数据成员的设置及获取等。
 // 其中，添加是将键盘输入的参数构造成对应的传感器参数类对象中；显示是将当前的传感器参数按格式输出到屏幕上。
 // 根据需要定义相应的构造函数及其他成员函数；
-static int num_camera = 0;
 
+static int num_camera = 0;
 template <>
 class Sensor<CameraParameter>
 {
@@ -149,7 +149,8 @@ public:
     }
     void add_parameter(CameraParameter cameraParameter)
     {
-        //this->parameters.push_back(cameraParameter);
+        //遍历is_effective,若key=id已存在，则不添加并输出提示信息
+
         if(this->camera_parameter == nullptr)
         {
             this->camera_parameter = new CameraParameter[reserved_sensor_num];
@@ -224,13 +225,13 @@ public:
 
     int get_online_sensors_num(){
         int num = 0;
-        for(int i=0;i<num_camera;i++)
+        for(int i=0;i<num_camera;)
         {
             //cout<<"num_camera:"<<num_camera<<endl;
             if(is_effective[camera_parameter[i].id]==1)
             {
-                //cout<<"reached "<<i<<endl;
                 num++;
+                i++;
             }
         }
         return num;
@@ -245,7 +246,7 @@ public:
         for (int i = 0; i < num_camera;)
         {
             //未被删除
-            if (is_effective[camera_parameter[i].id]!=-1)
+            if (is_effective[camera_parameter[i].id]!=-1&&camera_parameter[i].id!=-1)
             {
                 cout << camera_parameter[i].id << "\t" << camera_parameter[i].name << "\t" << camera_parameter[i].x << "," << camera_parameter[i].y << "," << camera_parameter[i].z << endl;
                 i++;
@@ -360,11 +361,12 @@ public:
 
     int get_online_sensor_num(){
         int num = 0;
-        for(int i=0;i<num_lidar;i++)
+        for(int i=0;i<num_lidar;)
         {
             if(is_effective[lidar_parameter[i].id]==1)
             {
                 num++;
+                i++;
             }
         }
         return num;
@@ -485,11 +487,12 @@ public:
 
     int get_online_sensor_num(){
         int num = 0;
-        for(int i=0;i<num_radar;i++)
+        for(int i=0;i<num_radar;)
         {
             if(is_effective[radar_parameter[i].id]==1)
             {
                 num++;
+                i++;
             }
         }
         return num;
@@ -804,6 +807,13 @@ public:
                 camera_list.camera_parameter[i].frame_rate = 0;
                 camera_list.camera_parameter[i].view_angle = 0;
                 camera_list.camera_parameter[i].color_bits = 0;
+
+                //数组移动
+                for(int j = i; j < camera_list.get_sensor_num(); j++)
+                {
+                    camera_list.camera_parameter[j] = camera_list.camera_parameter[j + 1];
+                }
+
                 num_camera--;
                 sensor_num--;
                 cout<< "[INFO] 删除Camera: "<<id<<":"<<name<<"成功！" <<endl;
@@ -996,7 +1006,7 @@ public:
         for(int i = 0; i < camera_list.get_sensor_num(); ){
             // Camera参数继承传感器参数基类，分辨率（integer, integer），帧率（integer），视场角(integer: 0-180)，畸变参数（float point[5]），色彩位数（integer）
             if(camera_list.is_effective[camera_list.camera_parameter[i].id]){
-                outfile << camera_list.camera_parameter[i]<< endl;
+                outfile << camera_list.camera_parameter[i];
                 i++;
             }
         }
