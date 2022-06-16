@@ -4,7 +4,7 @@
 
 #ifndef AUTOSENSORMANAGER_SENSOR_H
 #define AUTOSENSORMANAGER_SENSOR_H
-
+#include <list>
 
 using namespace std;
 
@@ -51,9 +51,16 @@ public:
     }
     // 传感器参数数组标志区分当前传感器对象是否被删除、是否有效等情况。未被删除且有效，则为1，否则为0。
     // 数据成员
+    // 将模板类中用于传感器参数类对象存取的数据模型由动态数组改为简单链表模型
+    typedef struct sensor_parameter_node {
+        T sensor_parameter_value;
+        struct sensor_parameter_node *next;
+    } sensor_parameter_node;
+    // 传感器参数数组指针
 
 private:
     T* sensor_parameter;
+
     int sensor_parameter_actual_size;
     int sensor_parameter_size;
     int sensor_parameter_flag;
