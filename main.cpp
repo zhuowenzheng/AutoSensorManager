@@ -3,10 +3,10 @@
 #include <fstream>
 #include <map>
 #include <sstream>
-#include <list>
+#include <vector>
 #include "Sensor.cpp"
 #include "SensorParameter.cpp"
-#include "sensorErrorException.cpp"
+#include "rangeExceedException.cpp"
 //#include
 
 using namespace std;
@@ -226,13 +226,12 @@ public:
 
     int get_online_sensors_num(){
         int num = 0;
-        for(int i=0;i<num_camera;)
+        for(int i=0;i<num_camera;i++)
         {
             //cout<<"num_camera:"<<num_camera<<endl;
             if(is_effective[camera_parameter[i].id]==1)
             {
                 num++;
-                i++;
             }
         }
         return num;
@@ -258,14 +257,13 @@ public:
     }
     void list_online_sensors(){
         cout<<"\033[0;34m Camera编号\tCamera名称\tCamera位置 \033[0m"<<endl;
-        for (int i = 0; i < get_online_sensors_num(); )
+        for (int i = 0; i < get_sensor_num();i++)
         {
             // 在线且未被删除
             if(is_effective[camera_parameter[i].id]==1)
             {
                 cout << camera_parameter[i].id<<"\t"<<camera_parameter[i].name << "\t" << camera_parameter[i].x << "," << camera_parameter[i].y << "," << camera_parameter[i].z << endl;
                 //cout << this->parameters[i].id << "\t" << this->parameters[i].name<<"\t"<<parameters[i].x<<" "<<parameters[i].y<<" "<<parameters[i].z<< endl;
-                i++;
             }
         }
     }
@@ -323,12 +321,25 @@ public:
                         cout << " 修改成功！Camera " << camera_parameter[i].id << "的帧率更新为" << camera_parameter[i].frame_rate
                              << "!" << endl;
                         break;
-                    case 4:
-                        cout << " 请输入新的视场角：" << endl;
-                        cin >> camera_parameter[i].view_angle;
-                        cout << " 修改成功！Camera " << camera_parameter[i].id << "的视场角更新为" << camera_parameter[i].view_angle
-                             << "!" << endl;
+                    case 4:{
+                        bool flag = true;
+                        int view_angle;
+                        while(flag){
+                            cout << "请输入新的视场角(range：0-180)：";
+                            try{
+                                cin >> view_angle;
+                                if(view_angle < 0 || view_angle > 180){
+                                    throw rangeExceedException();
+                                }
+                                flag = false;
+                            }catch (exception& e){
+                                cout << e.what() << endl;
+                            }
+                        }
+                        camera_parameter[i].view_angle = view_angle;
+                        cout << " 修改成功！Camera " << camera_parameter[i].id << "的视场角更新为" << camera_parameter[i].view_angle<< "!" << endl;
                         break;
+                    }
                     case 5:
                         cout << " 请输入新的畸变参数：" << endl;
                         for (float &j: camera_parameter[i].distortion_parameter)
@@ -471,12 +482,11 @@ public:
 
     int get_online_sensor_num(){
         int num = 0;
-        for(int i=0;i<num_lidar;)
+        for(int i=0;i<num_lidar;i++)
         {
             if(is_effective[lidar_parameter[i].id]==1)
             {
                 num++;
-                i++;
             }
         }
         return num;
@@ -497,10 +507,9 @@ public:
 
     void list_online_sensors(){
         cout<<"\033[0;34m Lidar编号\tLidar名称\tLidar位置 \033[0m"<<endl;
-        for (int i = 0; i < num_lidar;){
+        for (int i = 0; i < num_lidar; i++){
             if(is_effective[lidar_parameter[i].id]==1){
                 cout << lidar_parameter[i].id<<"\t"<<lidar_parameter[i].name << "\t" << lidar_parameter[i].x << "," << lidar_parameter[i].y << "," << lidar_parameter[i].z << endl;
-                i++;
             }
         }
     }
@@ -532,7 +541,7 @@ public:
             cout << " 2.线数(line_num)" << endl;
             cout << " 3.视场角(view_angle)" << endl;
             cout << " 4.旋转频率(rotate_rate)" << endl;
-            cout << " 5.水平视角(horizontal_view_angle)" << endl;
+            cout << " 5.水平视场角(horizontal_view_angle)" << endl;
             cout << " 6.退出" << endl;
             int parameter_id;
             cin >> parameter_id;
@@ -548,21 +557,49 @@ public:
                 cin >> lidar_parameter[i].line_num;
                 cout << "修改成功！Lidar"<<lidar_parameter[i].id<<"的线数更新为：" << lidar_parameter[i].line_num << endl;
                 break;
-            case 3:
-                cout << "请输入新的视场角：" << endl;
-                cin >> lidar_parameter[i].view_angle;
+            case 3:{
+                bool flag = true;
+                int view_angle;
+                while(flag){
+                    cout << "请输入新的视场角(range：0-45)：";
+                    try{
+                        cin >> view_angle;
+                        if(view_angle < 0 || view_angle > 45){
+                            throw rangeExceedException();
+                        }
+                        flag = false;
+                    }catch (exception& e){
+                        cout << e.what() << endl;
+                    }
+                }
+                lidar_parameter[i].view_angle = view_angle;
                 cout << "修改成功！Lidar"<<lidar_parameter[i].id<<"的视场角更新为：" << lidar_parameter[i].view_angle << endl;
                 break;
+            }
             case 4:
                 cout << "请输入新的旋转频率：" << endl;
                 cin >> lidar_parameter[i].rotate_rate;
                 cout << "修改成功！Lidar"<<lidar_parameter[i].id<<"的旋转频率更新为：" << lidar_parameter[i].rotate_rate << endl;
                 break;
-            case 5:
-                cout << "请输入新的水平视角：" << endl;
-                cin >> lidar_parameter[i].horizontal_view_angle;
+            case 5:{
+                bool flag = true;
+                int horizontal_view_angle;
+                while(flag){
+                    cout << "请输入新的水平视场角(range：0-360)：";
+                    try{
+                        cin >> horizontal_view_angle;
+                        if(horizontal_view_angle < 0 || horizontal_view_angle > 360){
+                            throw rangeExceedException();
+                        }
+                        flag = false;
+                    }catch (exception& e){
+                        cout << e.what() << endl;
+                    }
+                }
+                lidar_parameter[i].horizontal_view_angle = horizontal_view_angle;
                 cout << "修改成功！Lidar"<<lidar_parameter[i].id<<"的水平视角更新为：" << lidar_parameter[i].horizontal_view_angle << endl;
                 break;
+            }
             case 6:
                 break;
             default:
@@ -686,26 +723,23 @@ public:
             }
         }
     }
+    //返回radar总数
     int get_sensor_num(){
         return num_radar;
     }
-
+    //获取在线radar数目
     int get_online_sensor_num(){
         int num = 0;
-        for(int i=0;i<num_radar;)
+        for(int i=0;i<num_radar;i++)
         {
             if(is_effective[radar_parameter[i].id]==1)
             {
                 num++;
-                i++;
             }
         }
         return num;
     }
-   /* vector<RadarParameter> get_parameters()
-    {
-        return this->parameters;
-    }*/
+    //列出所有radar
     void list_sensors(){
         cout<<"\033[0;34m Radar编号\tRadar名称\tRadar位置 \033[0m"<<endl;
         for(int i = 0;i<num_radar;){
@@ -715,17 +749,17 @@ public:
             }
         }
     }
-
+    //列出在线的radar
     void list_online_sensors(){
         cout<<"\033[0;34m Radar编号\tRadar名称\tRadar位置 \033[0m"<<endl;
-        for(int i = 0;i<num_radar;){
+        for(int i = 0;i<num_radar;i++){
             if(is_effective[radar_parameter[i].id]==1){
                 cout<<radar_parameter[i].id<<"\t"<<radar_parameter[i].name<<"\t"<<radar_parameter[i].x<<","<<radar_parameter[i].y<<","<<radar_parameter[i].z<<endl;
-                i++;
+
             }
         }
     }
-
+    //修改radar参数
     void modify_parameter(int i){
         int choice;
         cout << "请选择需要修改的内容：" << endl;
@@ -767,11 +801,25 @@ public:
                         cin >> radar_parameter[i].resolution[0] >> radar_parameter[i].resolution[1];
                         cout << "修改成功！Radar "<<radar_parameter[i].id<<"的分辨率更新为"<<radar_parameter[i].resolution[0]<<","<<radar_parameter[i].resolution[1]<<endl;
                         break;
-                    case 3:
-                        cout << "请输入新的视场角：" << endl;
+                    case 3:{
+                        bool flag = true;
+                        int view_angle;
+                        while(flag){
+                            cout << "请输入新的视场角(range：0-60)：";
+                            try{
+                                cin >> view_angle;
+                                if(view_angle < 0 || view_angle > 60){
+                                    throw rangeExceedException();
+                                }
+                                flag = false;
+                            }catch (exception& e){
+                                cout << e.what() << endl;
+                            }
+                        }
                         cin >> radar_parameter[i].view_angle;
                         cout << "修改成功！Radar "<<radar_parameter[i].id<<"的视场角更新为"<<radar_parameter[i].view_angle<<endl;
                         break;
+                    }
                     case 4:
                         cout << "请输入新的速度精度：" << endl;
                         cin >> radar_parameter[i].speed_accuracy[0] >> radar_parameter[i].speed_accuracy[1];
@@ -850,11 +898,9 @@ public:
         this->sensor_type = 0;
     }
     ~SensorManager(){}
-    // 文件导入camera
 
-    ifstream & seek_to_line(ifstream & in, int line)
-    //将打开的文件in，定位到line行。
-    {
+    //将打开的文件in定位到line行
+    static ifstream & seek_to_line(ifstream & in, int line){
         int i;
         char buf[1024];
         in.seekg(0, ios::beg);  //定位到文件开始。
@@ -864,6 +910,7 @@ public:
         }
         return in;
     }
+    // 文件导入camera
     void add_camera_from_file(const string& file_path){
         ifstream file;
         string line;
@@ -932,7 +979,7 @@ public:
         file.close();
         cout<<"\033[0;32m 文件关闭 \033[0m"<<endl;
     }
-
+    // 从键盘输入流新增传感器
     void add_sensor_from_istream()
     {
         int id;
@@ -959,8 +1006,20 @@ public:
             cin >> resolution_x >> resolution_y;
             cout << "请输入传感器的帧率：";
             cin >> frame_rate;
-            cout << "请输入传感器的视场角：";
-            cin >> view_angle;
+            //视场角范围：0-180 try throw-exception if out of range
+            bool flag = true;
+            while(flag){
+                cout << "请输入传感器的视场角(range：0-180)：";
+                try{
+                    cin >> view_angle;
+                    if(view_angle < 0 || view_angle > 180){
+                        throw rangeExceedException();
+                    }
+                    flag = false;
+                }catch (exception& e){
+                    cout << e.what() << endl;
+                }
+            }
             cout << "请输入传感器的畸变参数（k1, k2, k3, k4, k5）：";
             cin >> distortion_parameter[0] >> distortion_parameter[1] >> distortion_parameter[2] >> distortion_parameter[3] >> distortion_parameter[4];
             cout << "请输入传感器的颜色位数：";
@@ -987,12 +1046,34 @@ public:
             cin >> roll >> pitch >> yaw;
             cout << "请输入传感器的线数：";
             cin >> line_num;
-            cout << "请输入传感器的视场角：";
-            cin >> view_angle;
+            bool flag1 = true;
+            while(flag1){
+                cout << "请输入传感器的视场角(range：0-45)：";
+                try{
+                    cin >> view_angle;
+                    if(view_angle < 0 || view_angle > 45){
+                        throw rangeExceedException();
+                    }
+                    flag1 = false;
+                }catch (exception& e){
+                    cout << e.what() << endl;
+                }
+            }
             cout << "请输入传感器的旋转频率：";
             cin >> rotation_rate;
-            cout << "请输入传感器的水平视场角：";
-            cin >> horizontal_view_angle;
+            bool flag2 = true;
+            while(flag2){
+                cout << "请输入传感器的水平视场角(range：0-360)：";
+                try{
+                    cin >> horizontal_view_angle;
+                    if(horizontal_view_angle < 0 || horizontal_view_angle > 360){
+                        throw rangeExceedException();
+                    }
+                    flag2 = false;
+                }catch (exception& e){
+                    cout << e.what() << endl;
+                }
+            }
             LidarParameter lidar(id, name, x, y, z, roll, pitch, yaw, line_num, view_angle, rotation_rate, horizontal_view_angle);
             lidar_list.add_parameter(lidar);
             sensor_num++;
@@ -1018,8 +1099,19 @@ public:
             cin >> roll >> pitch >> yaw;
             cout << "请输入传感器的分辨率(res_x,res_y)：";
             cin >> resolution[0] >> resolution[1];
-            cout << "请输入传感器的视场角：";
-            cin >> view_angle;
+            bool flag3 = true;
+            while(flag3){
+                cout << "请输入传感器的视场角(range：0-60)：";
+                try{
+                    cin >> view_angle;
+                    if(view_angle < 0 || view_angle > 45){
+                        throw rangeExceedException();
+                    }
+                    flag3 = false;
+                }catch (exception& e){
+                    cout << e.what() << endl;
+                }
+            }
             cout << "请输入传感器的速度精度：";
             cin >> speed_accuracy[0] >> speed_accuracy[1];
             cout << "请输入传感器的探测模式：";
@@ -1034,8 +1126,6 @@ public:
         }
 
     }
-
-
     // 查找传感器
     int find_sensor(int id,string* sensor_type)
     {
@@ -1197,7 +1287,7 @@ public:
         cout<<"-------------------------------------------"<<endl;
     }
     // 统计指定传感器
-    void statistic_specified_sensors(int sensor_id[],int count){
+    void statistic_specified_sensors(vector<int> sensor_id,int count){
         cout<<"-----------------传感器统计-----------------"<<endl;
         cout<<"统计传感器："<<endl;
         cout<<count<<endl;
@@ -1206,7 +1296,7 @@ public:
         int lidar_num = 0;
         int radar_num = 0;
         for(int i =0;i<count;i++){
-            find_sensor(sensor_id[i],(types+i));
+            find_sensor(sensor_id[i],&types[i]);
             cout<<"传感器"<<sensor_id[i]<<"："<<types[i]<<endl;
             if(types[i]=="camera"){
                 camera_num++;
@@ -1221,12 +1311,12 @@ public:
         if(camera_num>0){
             cout<<"Camera:"<<camera_num<<"个"<<endl;
             cout<<"ID"<<"\t"<<"名称"<<"\t"<<"位置"<<endl;
-
-            for(int i =0;i<count;i++){
+            //enumerate all camera
+            for(int i =0;i<num_camera;i++){
                 if(types[i]=="camera")
                 {
-                cout<<camera_list.camera_parameter[i].id<<"\t"<<camera_list.camera_parameter[i].name<<"\t";
-                cout<<"("<<camera_list.camera_parameter[i].x<<","<<camera_list.camera_parameter[i].y<<","<<camera_list.camera_parameter[i].z<<")"<<endl;
+                    cout<<camera_list.camera_parameter[i].id<<"\t"<<camera_list.camera_parameter[i].name<<"\t";
+                    cout<<"("<<camera_list.camera_parameter[i].x<<","<<camera_list.camera_parameter[i].y<<","<<camera_list.camera_parameter[i].z<<")"<<endl;
                 }
             }
         }
@@ -1234,11 +1324,11 @@ public:
             cout<<"Lidar:"<<lidar_num<<"个"<<endl;
             cout<<"ID"<<"\t"<<"名称"<<"\t"<<"位置"<<endl;
 
-            for(int i =0;i<count;i++){
-                if(types[i]=="lidar")
+            for(int j = 0;j<num_lidar;j++){
+                if(types[j]=="lidar")
                 {
-                cout<<lidar_list.lidar_parameter[i].id<<"\t"<<lidar_list.lidar_parameter[i].name<<"\t";
-                cout<<"("<<lidar_list.lidar_parameter[i].x<<","<<lidar_list.lidar_parameter[i].y<<","<<lidar_list.lidar_parameter[i].z<<")"<<endl<<endl;
+                    cout<<lidar_list.lidar_parameter[j].id<<"\t"<<lidar_list.lidar_parameter[j].name<<"\t";
+                    cout<<"("<<lidar_list.lidar_parameter[j].x<<","<<lidar_list.lidar_parameter[j].y<<","<<lidar_list.lidar_parameter[j].z<<")"<<endl;
                 }
             }
         }
@@ -1246,15 +1336,14 @@ public:
             cout<<"Radar:"<<radar_num<<"个"<<endl;
             cout<<"ID"<<"\t"<<"名称"<<"\t"<<"位置"<<endl;
 
-            for(int i =0;i<count;i++){
-                if(types[i]=="radar")
+            for(int k = 0;k<num_radar;k++){
+                if(types[k]=="radar")
                 {
-                cout<<radar_list.radar_parameter[i].id<<"\t"<<radar_list.radar_parameter[i].name<<"\t";
-                cout<<"("<<radar_list.radar_parameter[i].x<<","<<radar_list.radar_parameter[i].y<<","<<radar_list.radar_parameter[i].z<<")"<<endl<<endl;
+                    cout<<radar_list.radar_parameter[k].id<<"\t"<<radar_list.radar_parameter[k].name<<"\t";
+                    cout<<"("<<radar_list.radar_parameter[k].x<<","<<radar_list.radar_parameter[k].y<<","<<radar_list.radar_parameter[k].z<<")"<<endl;
                 }
             }
         }
-
     }
     void statistic_sensor_parameter()
     {
@@ -1347,11 +1436,11 @@ public:
             cout << "[ERROR] 传感器ID不存在！" << endl;
             return;
         }
-        if(sensor_type == "Camera") {
+        if(sensor_type == "camera") {
             camera_list.modify_parameter(sensor_serial_num);
-        } else if(sensor_type == "Lidar") {
+        } else if(sensor_type == "lidar") {
             lidar_list.modify_parameter(sensor_serial_num);
-        } else if(sensor_type == "Radar") {
+        } else if(sensor_type == "radar") {
             radar_list.modify_parameter(sensor_serial_num);
         }
     }
@@ -1377,6 +1466,7 @@ private:
     string Car_ID;
 };
 
+//用户主界面
 void ui_initialize(){
     // 操作界面
     cout<<"---------------------------------------"<<endl;
@@ -1409,7 +1499,9 @@ int main() {
         cout << "请输入您的选择：";
         cin >> choice;
         switch (choice) {
+            // 从文件中添加传感器参数
             case 1: {
+
                 bool file_input = true;
                 while (file_input) {
                     cout << "请输入要添加的传感器类型：" << endl;
@@ -1473,31 +1565,35 @@ int main() {
                 }
                 break;
             }
+            // 从键盘输入流添加传感器参数
             case 2:
             {
                 sensor_manager.add_sensor_from_istream();
                 break;
             }
+            // 显示所有传感器
             case 3:
             {
                 sensor_manager.list_all_sensor();
                 break;
             }
+            // 显示所有在线传感器
             case 4: {
                 sensor_manager.list_online_sensor();
                 break;
             }
+            //查找传感器
             case 5:{
                 cout<<"请输入要查找的传感器id："<<endl;
                 int sensor_id;
                 string sensor_type;
                 cin>>sensor_id;
                 sensor_manager.find_sensor(sensor_id,&sensor_type);
-                if(sensor_type=="Camera")
+                if(sensor_type=="camera")
                     cout<<"查找到传感器"<<sensor_id<<":Camera"<<endl;
-                else if(sensor_type=="Lidar")
+                else if(sensor_type=="lidar")
                     cout<<"查找到传感器"<<sensor_id<<":Lidar"<<endl;
-                else if(sensor_type=="Radar"){
+                else if(sensor_type=="radar"){
                     cout<<"查找到传感器"<<sensor_id<<":Radar"<<endl;
                 }
                 else{
@@ -1505,6 +1601,7 @@ int main() {
                 }
                 break;
             }
+            //删除传感器
             case 6:{
                 cout<<"请输入要删除的传感器id："<<endl;
                 int sensor_id;
@@ -1519,32 +1616,42 @@ int main() {
                 }
                 break;
             }
+            //显示某个或多个传感器的ID，并能够按种类显示；统计传感器所在位置
             case 7:{
-                //显示某个或多个传感器的ID，并能够按种类显示；统计传感器所在位置
+
                 cout<<"请输入要统计的传感器ID,以空格分隔："<<endl;
-                int sensor_id[num_camera+num_lidar+num_radar];
+                vector<int> sensor_id_list;
                 int count = 0;
-                for(int i=0;i<num_camera+num_lidar+num_radar;i++){
-                    cin>>sensor_id[i];
-                    if(sensor_id[i]==-1){
-                        break;
-                    }
+                string line;
+                cin.sync();
+                cin.clear();
+                cin.ignore();
+                getline(cin,line);
+                cout<<line<<endl;
+                istringstream ss(line);
+                string temp;
+                while(getline(ss,temp,' ')){
+                    sensor_id_list.push_back(stoi(temp));
                     count++;
                 }
-                sensor_manager.statistic_specified_sensors(sensor_id,count);
+                // 统计选定传感器
+                sensor_manager.statistic_specified_sensors(sensor_id_list,count);
                 break;
             }
+            //按种类显示统计该种类所有传感器参数详情
             case 8:{
-                //按种类显示统计传感器参数详情
+
                 sensor_manager.statistic_sensor_parameter();
                 break;
             }
+            //保存传感器参数到文件，并显示保存的路径，分类保存
             case 9:{
                 sensor_manager.save_parameter_tofile("/Users/alexzheng/Desktop",sensor_manager.get_Car_ID());
                 break;
             }
+            //修改传感器参数
             case 10:{
-                //修改传感器参数
+
                 cout<<"请输入要修改的传感器id："<<endl;
                 int sensor_to_change_id;
                 cin>>sensor_to_change_id;
@@ -1552,8 +1659,9 @@ int main() {
                 sensor_manager.modify_sensor_parameter(sensor_to_change_id);
                 break;
             }
+            //根据指定参数对传感器排序
             case 11:{
-                //根据参数对传感器筛选排序
+
                 cout<<"请输入要筛选的传感器种类："<<endl;
                 int sensor_type,sensor_parameter;
                 cin>>sensor_type;
@@ -1562,7 +1670,7 @@ int main() {
                 sensor_manager.sort_sensor(sensor_type,sensor_parameter);
                 break;
             }
-
+            //系统退出入口
             case 12: {
                 // 确认退出
                 cout << "\033[0;33m 确认退出？如新加入的参数未保存您可能丢失参数数据，请确认保存传感器参数后再退出！(y/n) :\033[0m";
@@ -1584,5 +1692,6 @@ int main() {
     }
 }
 
-// 未完成之任务：
-// 1.限定参数范围 exception
+//听我说谢谢你
+//因为有你
+//温暖了四季
